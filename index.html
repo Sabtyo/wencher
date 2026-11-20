@@ -7,9 +7,9 @@
   <style>
     :root {
       --bg: #040812;
-      --panel: rgba(11, 19, 36, 0.85);
-      --card: rgba(16, 27, 50, 0.88);
-      --border: rgba(56, 189, 248, 0.25);
+      --panel: rgba(11, 19, 36, 0.92);
+      --card: rgba(16, 27, 50, 0.92);
+      --border: rgba(56, 189, 248, 0.28);
       --cyan: #38bdf8;
       --purple: #a855f7;
       --gold: #fbbf24;
@@ -25,29 +25,30 @@
       min-height: 100vh; display: flex; flex-direction: column;
     }
     .modal-backdrop {
-      position: fixed; inset: 0; background: rgba(2, 5, 12, 0.92); backdrop-filter: blur(12px);
-      display: flex; align-items: center; justify-content: center; z-index: 100; padding: 1rem;
+      position: fixed; inset: 0; background: rgba(2, 5, 12, 0.94);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; padding: 1rem; pointer-events: auto;
     }
     .glass-box {
-      background: var(--panel); border: 1px solid var(--cyan); border-radius: 18px;
-      width: 100%; max-width: 410px; padding: 1.75rem;
-      box-shadow: 0 0 35px rgba(56, 189, 248, 0.2);
+      background: #0b1324; border: 1px solid var(--cyan); border-radius: 18px;
+      width: 100%; max-width: 410px; padding: 1.75rem; position: relative; z-index: 10000;
+      box-shadow: 0 0 35px rgba(56, 189, 248, 0.25); pointer-events: auto;
     }
     .auth-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; }
     .auth-tab {
-      flex: 1; padding: 0.55rem; border-radius: 10px; border: 1px solid var(--border);
+      flex: 1; padding: 0.6rem; border-radius: 10px; border: 1px solid var(--border);
       background: #070e1d; color: var(--muted); font-weight: 700; cursor: pointer;
     }
-    .auth-tab.active { background: var(--cyan); color: #030a17; box-shadow: 0 0 15px rgba(56,189,248,0.4); }
+    .auth-tab.active { background: var(--cyan); color: #030a17; }
     .field { margin-bottom: 0.9rem; }
-    .field label { display: block; font-size: 0.76rem; color: var(--cyan); margin-bottom: 0.3rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .field label { display: block; font-size: 0.76rem; color: var(--cyan); margin-bottom: 0.3rem; font-weight: 700; text-transform: uppercase; }
     .field input {
-      width: 100%; padding: 0.62rem 0.85rem; border-radius: 10px; border: 1px solid var(--border);
-      background: #060c1a; color: #fff; outline: none;
+      width: 100%; padding: 0.65rem 0.85rem; border-radius: 10px; border: 1px solid var(--border);
+      background: #060c1a; color: #fff; outline: none; font-size: 0.95rem;
     }
-    .field input:focus { border-color: var(--cyan); box-shadow: 0 0 12px rgba(56,189,248,0.25); }
+    .field input:focus { border-color: var(--cyan); }
     .topbar {
-      height: 64px; background: rgba(6, 11, 24, 0.9); backdrop-filter: blur(12px);
+      height: 64px; background: rgba(6, 11, 24, 0.95);
       border-bottom: 1px solid var(--border); display: flex; align-items: center;
       justify-content: space-between; padding: 0 1rem; gap: 0.6rem; position: sticky; top: 0; z-index: 30;
     }
@@ -57,24 +58,22 @@
       width: 36px; height: 36px; border-radius: 10px;
       background: linear-gradient(135deg, #2563eb, #38bdf8);
       display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.45);
     }
     .search-box {
       background: #081022; border: 1px solid var(--border); border-radius: 10px;
       padding: 0.42rem 0.8rem; color: #fff; width: 190px; outline: none;
     }
     .nav-btn {
-      background: rgba(16, 27, 50, 0.8); border: 1px solid var(--border); color: var(--text);
-      padding: 0.42rem 0.75rem; border-radius: 9px; font-size: 0.78rem; font-weight: 700;
-      cursor: pointer; transition: 0.15s;
+      background: #101b32; border: 1px solid var(--border); color: var(--text);
+      padding: 0.42rem 0.75rem; border-radius: 9px; font-size: 0.78rem; font-weight: 700; cursor: pointer;
     }
-    .nav-btn:hover { border-color: var(--cyan); box-shadow: 0 0 12px rgba(56,189,248,0.25); }
+    .nav-btn:hover { border-color: var(--cyan); }
     .nav-btn.vip { border-color: var(--gold); color: var(--gold); background: rgba(251,191,36,0.1); }
     .nav-btn.cloud { border-color: var(--purple); color: #d8b4fe; background: rgba(168,85,247,0.14); }
     .nav-btn.admin { border-color: var(--red); color: #fca5a5; background: rgba(239,68,68,0.14); }
     .coin-pill {
       background: #0b152b; border: 1px solid var(--cyan); padding: 0.36rem 0.75rem;
-      border-radius: 999px; font-size: 0.78rem; font-weight: 800; box-shadow: 0 0 12px rgba(56,189,248,0.18);
+      border-radius: 999px; font-size: 0.78rem; font-weight: 800;
     }
     .workspace { display: flex; flex: 1; }
     .sidebar {
@@ -96,19 +95,18 @@
       background: linear-gradient(125deg, rgba(29,78,216,0.28), rgba(168,85,247,0.2), rgba(11,19,36,0.9));
       border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem;
       display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;
-      margin-bottom: 1.3rem; box-shadow: 0 0 30px rgba(56,189,248,0.1);
+      margin-bottom: 1.3rem;
     }
     .btn-primary {
       background: linear-gradient(90deg, #0284c7, #38bdf8); color: #030a17; border: none;
-      padding: 0.58rem 1.1rem; border-radius: 10px; font-weight: 800; cursor: pointer;
-      box-shadow: 0 0 18px rgba(56,189,248,0.35);
+      padding: 0.62rem 1.1rem; border-radius: 10px; font-weight: 800; cursor: pointer;
     }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(225px, 1fr)); gap: 1.1rem; }
     .game-card {
       background: var(--card); border: 1px solid var(--border); border-radius: 15px;
       overflow: hidden; cursor: pointer; transition: 0.18s; position: relative;
     }
-    .game-card:hover { transform: translateY(-5px); border-color: var(--cyan); box-shadow: 0 8px 25px rgba(56,189,248,0.22); }
+    .game-card:hover { transform: translateY(-5px); border-color: var(--cyan); }
     .card-banner { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 2.9rem; position: relative; }
     .tag-pill {
       position: absolute; top: 9px; right: 9px; padding: 0.2rem 0.5rem; border-radius: 6px;
@@ -147,18 +145,20 @@
     #gameCanvas, #gameFrame { width: 100%; height: 480px; border-radius: 14px; border: 1px solid var(--cyan); background: #030711; }
     .toast {
       position: fixed; bottom: 18px; right: 18px; background: #0c172e; border: 1px solid var(--cyan);
-      color: #fff; padding: 0.7rem 1rem; border-radius: 12px; font-size: 0.83rem; font-weight: 700; z-index: 120; display: none;
+      color: #fff; padding: 0.7rem 1rem; border-radius: 12px; font-size: 0.83rem; font-weight: 700; z-index: 12000; display: none;
     }
   </style>
 </head>
 <body>
+  <div class="toast" id="toast"></div>
+
   <div class="modal-backdrop" id="authModal">
     <div class="glass-box">
       <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;">
         <div class="brand-icon">🐧</div>
         <div>
           <div style="font-weight:900;font-size:1.1rem;letter-spacing:0.05em;">CYBER-ARCTIC OS</div>
-          <div style="font-size:0.74rem;color:var(--cyan);">Authenticate to access Games, Cloud & VIP</div>
+          <div style="font-size:0.74rem;color:var(--cyan);">Sign up or log in to access Games, Cloud & VIP</div>
         </div>
       </div>
       <div class="auth-tabs">
@@ -169,14 +169,16 @@
         <div class="field"><label>Username</label><input id="authUser" type="text" required minlength="3" maxlength="20" placeholder="Enter username..." /></div>
         <div class="field"><label>Password</label><input id="authPass" type="password" required minlength="4" placeholder="Enter password..." /></div>
         <div id="authError" style="color:#f87171;font-size:0.8rem;margin-bottom:0.75rem;display:none;"></div>
-        <button class="btn-primary" type="submit" style="width:100%;" id="authSubmitBtn">Initialize Session →</button>
+        <button class="btn-primary" type="submit" style="width:100%;" id="authSubmitBtn">Log In →</button>
       </form>
     </div>
   </div>
 
-🛡️ Admin Security Gate
-Enter SHA-256 master key to unlock Admin Console.
-
+  <div class="modal-backdrop" id="adminLockModal" style="display:none;">
+    <div class="glass-box">
+      <h3 style="margin:0 0 0.4rem;">🛡️ Admin Security Gate</h3>
+      <p style="margin:0 0 1rem;font-size:0.8rem;color:var(--muted);">Enter master admin password to unlock Admin Console.</p>
+      <form id="adminLockForm">
 Master Admin Password
 Access Denied.
 
@@ -258,11 +260,16 @@ Exec
 
 
 const ADMIN_PASSWORD_HASH = "e5b8875186787918d403976c449770a5968a51782080a9573b2c68f619147c07"; // "pebbles2026"
-async function sha256(s) {
+async function hashStr(s) {
+if (window.crypto && window.crypto.subtle) {
 const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
 return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, "0")).join("");
 }
-// Add real hosted game URLs via optional url: "games/folder/index.html" property
+// Fallback hash if opened over non-HTTPS file://
+let h = 0;
+for (let i = 0; i < s.length; i++) h = ((h << 5) - h) + s.charCodeAt(i) | 0;
+return "fallback_" + h;
+}
 const GAMES = [
 { id: "snake", title: "Cyber Neon Snake", cat: "Arcade", desc: "Classic grid snake with cyber speed boost.", color: "linear-gradient(135deg,#059669,#34d399)", icon: "🐍", tier: "free", mode: "snake" },
 { id: "breakout", title: "Plasma Breakout", cat: "Arcade", desc: "Smash neon energy bricks with a laser paddle.", color: "linear-gradient(135deg,#0284c7,#38bdf8)", icon: "🧱", tier: "free", mode: "breakout" },
@@ -287,7 +294,9 @@ let currentUser = sessionStorage.getItem("gameland_session_user") || null;
 let adminUnlocked = false, authMode = "login", currentCat = "All", animLoop = null;
 function saveDB() { localStorage.setItem("gameland_users_db", JSON.stringify(db)); updateHUD(); }
 function showToast(m) {
-const t = document.getElementById("toast"); t.textContent = m; t.style.display = "block";
+const t = document.getElementById("toast");
+if (!t) return;
+t.textContent = m; t.style.display = "block";
 clearTimeout(t._t); t._t = setTimeout(() => t.style.display = "none", 3200);
 }
 function checkBanStatus(u) {
@@ -304,21 +313,22 @@ function setAuthMode(m) {
 authMode = m;
 document.getElementById("tabLogin").classList.toggle("active", m === "login");
 document.getElementById("tabSignup").classList.toggle("active", m === "signup");
-document.getElementById("authSubmitBtn").textContent = m === "login" ? "Initialize Session →" : "Create Account →";
+document.getElementById("authSubmitBtn").textContent = m === "login" ? "Log In →" : "Create Account →";
 document.getElementById("authError").style.display = "none";
 }
 document.getElementById("authForm").onsubmit = async (e) => {
 e.preventDefault();
 const user = document.getElementById("authUser").value.trim().toLowerCase();
-const passHash = await sha256(document.getElementById("authPass").value);
+const passRaw = document.getElementById("authPass").value;
+const passHash = await hashStr(passRaw);
 const err = document.getElementById("authError");
 if (authMode === "signup") {
-if (db[user]) { err.textContent = "Username taken."; err.style.display = "block"; return; }
+if (db[user]) { err.textContent = "Username already taken."; err.style.display = "block"; return; }
 db[user] = { username: user, passHash, coins: 5, dailyDate: todayKey, dailyEarned: 0, vip: "none", banned: false, banUntil: 0 };
 saveDB();
 showToast(🎉 Welcome @${user}! +5 starter tokens.);
 } else {
-if (!db[user] || db[user].passHash !== passHash) { err.textContent = "Invalid credentials."; err.style.display = "block"; return; }
+if (!db[user] || db[user].passHash !== passHash) { err.textContent = "Invalid username or password."; err.style.display = "block"; return; }
 const banMsg = checkBanStatus(db[user]);
 if (banMsg) { err.textContent = banMsg; err.style.display = "block"; return; }
 }
@@ -352,7 +362,9 @@ document.getElementById("adminLockModal").style.display = "flex";
 }
 document.getElementById("adminLockForm").onsubmit = async (e) => {
 e.preventDefault();
-if ((await sha256(document.getElementById("adminPassInput").value)) === ADMIN_PASSWORD_HASH) {
+const rawPass = document.getElementById("adminPassInput").value;
+const hashed = await hashStr(rawPass);
+if (hashed === ADMIN_PASSWORD_HASH || rawPass === "pebbles2026") {
 adminUnlocked = true;
 document.getElementById("adminLockModal").style.display = "none";
 logConsole("✓ Admin authenticated.");
@@ -372,20 +384,20 @@ const raw = document.getElementById("consoleCmd").value.trim();
 document.getElementById("consoleCmd").value = "";
 if (!raw) return;
 logConsole(> ${raw});
-const p = raw.split(/\s+/), cmd = p[0].toLowerCase(), target = (p[1] || "").toLowerCase();
+const p = raw.split(/\s+/), cmd = p.toLowerCase(), target = (p || "").toLowerCase();
 if (cmd === "/help") logConsole("Commands: /givecoins   | /givevip  <gold|platinum|diamond|none> | /ban  | /tempban   | /unban  | /list");
 else if (cmd === "/list") logConsole("Users: " + (Object.keys(db).join(", ") || "none"));
-else if (cmd === "/givecoins" && db[target] && !isNaN(Number(p[2]))) {
-db[target].coins = Math.max(0, db[target].coins + Number(p[2]));
-saveDB(); renderAdminUsers(); logConsole(Granted ${p[2]} coins to @${target}.);
-} else if (cmd === "/givevip" && db[target] && TIER_RANK[p[2]?.toLowerCase()] !== undefined) {
-db[target].vip = p[2].toLowerCase();
+else if (cmd === "/givecoins" && db[target] && !isNaN(Number(p))) {
+db[target].coins = Math.max(0, db[target].coins + Number(p));
+saveDB(); renderAdminUsers(); logConsole(Granted ${p} coins to @${target}.);
+} else if (cmd === "/givevip" && db[target] && TIER_RANK[p?.toLowerCase()] !== undefined) {
+db[target].vip = p.toLowerCase();
 saveDB(); renderAdminUsers(); renderGames(); logConsole(Set @${target} to ${db[target].vip.toUpperCase()}.);
 } else if (cmd === "/ban" && db[target]) {
 db[target].banned = true; saveDB(); renderAdminUsers(); logConsole(Permanently banned @${target}.);
-} else if (cmd === "/tempban" && db[target] && Number(p[2]) > 0) {
-db[target].banUntil = Date.now() + Number(p[2]) * 60000;
-saveDB(); renderAdminUsers(); logConsole(Temp-banned @${target} for ${p[2]} minute(s).);
+} else if (cmd === "/tempban" && db[target] && Number(p) > 0) {
+db[target].banUntil = Date.now() + Number(p) * 60000;
+saveDB(); renderAdminUsers(); logConsole(Temp-banned @${target} for ${p} minute(s).);
 } else if (cmd === "/unban" && db[target]) {
 db[target].banned = false; db[target].banUntil = 0;
 saveDB(); renderAdminUsers(); logConsole(Unbanned @${target}.);
@@ -500,7 +512,7 @@ function loop() {
 ctx.fillStyle = "#040812"; ctx.fillRect(0, 0, 900, 480);
 if (mode === "snake") {
 if (++tick % 6 === 0) {
-const head = { x: (snake[0].x + dir.x + 30) % 30, y: (snake[0].y + dir.y + 16) % 16 };
+const head = { x: (snake.x + dir.x + 30) % 30, y: (snake.y + dir.y + 16) % 16 };
 if (snake.some(s => s.x === head.x && s.y === head.y)) { snake = [{x:10,y:10}]; score = 0; }
 else {
 snake.unshift(head);
