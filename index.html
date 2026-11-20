@@ -1,572 +1,385 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GAMELAND — By Pebbles The Penguin</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GAMELAND - By Pebbles The Penguin</title>
   <style>
     :root {
-      --bg: #060b16;
-      --sidebar: #09101f;
-      --card: #0e172a;
-      --card-hover: #13203b;
-      --border: #1b2842;
-      --cyan: #38bdf8;
-      --gold: #f59e0b;
-      --purple: #a855f7;
-      --green: #10b981;
-      --red: #ef4444;
-      --text: #f1f5f9;
-      --muted: #8b9bb4;
+      --bg: #070c18; --panel: #0d1527; --panel2: #111c31; --border: #1d2a44;
+      --cyan: #38bdf8; --gold: #f5b942; --purple: #b66cff; --green: #34d399;
+      --text: #f1f5f9; --muted: #91a0b8; --danger: #f87171;
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0; font-family: system-ui, -apple-system, sans-serif;
-      background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column;
-    }
-    .overlay {
-      position: fixed; inset: 0; background: rgba(3, 6, 14, 0.94);
-      display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 1rem;
-    }
-    .modal-box {
-      background: #0b1324; border: 1px solid var(--cyan); border-radius: 16px;
-      width: 100%; max-width: 400px; padding: 1.6rem; box-shadow: 0 0 30px rgba(56, 189, 248, 0.2);
-    }
-    .field { margin-bottom: 0.9rem; }
-    .field label { display: block; font-size: 0.76rem; color: var(--cyan); margin-bottom: 0.3rem; font-weight: 700; }
-    .field input {
-      width: 100%; padding: 0.62rem 0.85rem; border-radius: 9px; border: 1px solid var(--border);
-      background: #060b16; color: #fff; font-size: 0.92rem; outline: none;
-    }
-    .btn-cyan {
-      background: linear-gradient(90deg, #0284c7, #38bdf8); color: #04101f; border: none;
-      padding: 0.6rem 1.05rem; border-radius: 9px; font-weight: 800; cursor: pointer; font-size: 0.86rem;
-    }
-    .topbar {
-      height: 60px; background: #080e1c; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 1rem; gap: 0.6rem; position: sticky; top: 0; z-index: 40;
-    }
-    .nav-group { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; }
-    .brand { display: flex; align-items: center; gap: 0.55rem; cursor: pointer; }
-    .brand-logo {
-      width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, #1d4ed8, #38bdf8);
-      display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
-    }
-    .count-pill {
-      background: #111c33; border: 1px solid var(--border); color: var(--cyan);
-      padding: 0.22rem 0.55rem; border-radius: 7px; font-size: 0.72rem; font-weight: 800;
-    }
-    .search-bar {
-      background: #0d1629; border: 1px solid var(--border); border-radius: 9px;
-      padding: 0.4rem 0.8rem; color: #fff; width: 210px; outline: none; font-size: 0.84rem;
-    }
-    .top-btn {
-      background: #0f192e; border: 1px solid var(--border); color: var(--text);
-      padding: 0.4rem 0.72rem; border-radius: 8px; font-size: 0.76rem; font-weight: 700; cursor: pointer;
-    }
+    body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); font-family: Inter, system-ui, -apple-system, sans-serif; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .overlay { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(3,7,16,.92); }
+    .modal { width: min(410px,100%); padding: 24px; border: 1px solid var(--cyan); border-radius: 16px; background: #0b1324; box-shadow: 0 20px 70px rgba(56,189,248,.16); }
+    .modal h2 { margin: 0 0 6px; }
+    .modal p { color: var(--muted); margin-top: 0; }
+    .field { display: grid; gap: 7px; margin: 18px 0; }
+    .field label { color: var(--cyan); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+    .field input, .search, .sort, .console-input { border: 1px solid var(--border); border-radius: 8px; background: #070d19; color: white; outline: none; }
+    .field input { width: 100%; padding: 11px 12px; }
+    .actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .topbar { height: 62px; position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--border); background: rgba(8,14,28,.96); backdrop-filter: blur(12px); }
+    .nav-group { display: flex; align-items: center; gap: 8px; }
+    .brand { display: flex; align-items: center; gap: 9px; border: 0; background: none; color: white; text-align: left; }
+    .brand-logo { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; background: linear-gradient(135deg,#1d4ed8,#38bdf8); font-size: 21px; }
+    .brand strong { display: block; line-height: 1; font-size: 16px; }
+    .brand small { color: var(--muted); font-size: 10px; }
+    .pill, .top-btn { min-height: 34px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--border); border-radius: 8px; background: #10192b; color: var(--text); padding: 7px 10px; font-size: 12px; font-weight: 800; }
     .top-btn:hover { border-color: var(--cyan); }
-    .top-btn.vip { background: rgba(245, 158, 11, 0.14); border-color: var(--gold); color: #fbbf24; }
-    .top-btn.cloud { background: rgba(168, 85, 247, 0.14); border-color: var(--purple); color: #d8b4fe; }
-    .top-btn.admin { background: rgba(239, 68, 68, 0.14); border-color: var(--red); color: #fca5a5; }
-    .workspace { display: flex; flex: 1; }
-    .sidebar {
-      width: 245px; background: var(--sidebar); border-right: 1px solid var(--border);
-      padding: 0.9rem 0.7rem; display: flex; flex-direction: column; gap: 0.85rem; flex-shrink: 0;
+    .search { width: 210px; padding: 8px 10px; }
+    .workspace { min-height: calc(100vh - 62px); display: flex; }
+    .sidebar { width: 246px; flex: 0 0 246px; display: flex; flex-direction: column; gap: 14px; padding: 14px 10px; border-right: 1px solid var(--border); background: #09101f; transition: width .2s, transform .2s; }
+    .sidebar.closed { width: 0; flex-basis: 0; overflow: hidden; padding-left: 0; padding-right: 0; border: 0; }
+    .side-head { padding: 0 8px; color: var(--muted); font-size: 10px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+    .side-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; margin: 2px 0; padding: 9px 10px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: #cbd5e1; font-size: 13px; font-weight: 700; }
+    .side-btn:hover, .side-btn.active { border-color: rgba(56,189,248,.3); background: rgba(56,189,248,.1); color: var(--cyan); }
+    .mini-tag { padding: 3px 6px; border-radius: 5px; font-size: 9px; }
+    .tag-green { border: 1px solid var(--green); background: rgba(52,211,153,.14); color: #6ee7b7; }
+    .tag-gold { border: 1px solid var(--gold); background: rgba(245,185,66,.14); color: #fcd34d; }
+    .tag-purple { border: 1px solid var(--purple); background: rgba(182,108,255,.14); color: #d8b4fe; }
+    .user-box { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: #0c1528; }
+    .main { width: 100%; max-width: 1400px; margin: 0 auto; padding: 22px; }
+    .view { display: none; }
+    .view.active { display: block; }
+    .hero { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 18px; padding: 24px; border: 1px solid var(--border); border-radius: 16px; background: radial-gradient(circle at top right,#162e58,#0b1324 70%); }
+    .hero h1 { margin: 0 0 8px; font-size: clamp(24px,4vw,38px); }
+    .hero p { max-width: 650px; margin: 0; color: #b6c2d4; line-height: 1.6; }
+    .pebbles-panel { min-width: 270px; display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: rgba(7,12,24,.8); }
+    .pebbles-avatar { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; background: #17284a; font-size: 30px; }
+    .pebbles-panel strong { display: block; }
+    .pebbles-panel small { color: var(--muted); }
+    .filter-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .chip { border: 1px solid var(--border); border-radius: 8px; background: #0d1729; color: var(--muted); padding: 7px 10px; font-size: 12px; font-weight: 700; }
+    .chip.active { border-color: var(--cyan); background: var(--cyan); color: #07101d; }
+    .sort { padding: 8px 10px; }
+    .game-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(230px,1fr)); gap: 16px; }
+    .game-card { min-height: 242px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 14px; background: var(--panel); transition: .16s ease; cursor: pointer; }
+    .game-card:hover { transform: translateY(-4px); border-color: var(--cyan); background: #13203b; }
+    .thumb { height: 128px; position: relative; display: grid; place-items: center; font-size: 48px; }
+    .badge { position: absolute; left: 8px; border-radius: 5px; padding: 4px 7px; font-size: 9px; font-weight: 900; text-transform: uppercase; }
+    .badge.cat { top: 8px; border: 1px solid var(--border); background: rgba(5,10,20,.82); }
+    .badge.pick { top: 8px; left: 76px; border: 1px solid var(--cyan); background: rgba(56,189,248,.18); color: var(--cyan); }
+    .badge.tier { top: 38px; border: 1px solid var(--gold); background: rgba(245,185,66,.2); color: #fde68a; }
+    .badge.tier.cloud { border-color: var(--purple); background: rgba(182,108,255,.22); color: #e9d5ff; }
+    .favorite { position: absolute; right: 8px; top: 8px; width: 29px; height: 29px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 50%; background: rgba(5,10,20,.82); }
+    .game-body { flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 13px; }
+    .game-title { font-size: 15px; font-weight: 900; }
+    .game-desc { min-height: 40px; margin: 5px 0 10px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .game-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; font-weight: 700; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+    .section-head h2 { margin: 0; }
+    .link-btn { border: 1px solid var(--border); border-radius: 8px; background: #10192b; color: white; padding: 8px 10px; }
+    .shop-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 14px; }
+    .vip-card { padding: 18px; border: 1px solid rgba(245,185,66,.42); border-radius: 14px; background: var(--panel); }
+    .vip-card h3 { margin: 0 0 7px; }
+    .vip-card p { min-height: 48px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .vip-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+    .cyan-btn { border: 0; border-radius: 8px; background: linear-gradient(90deg,#0284c7,#38bdf8); color: #07101d; padding: 9px 13px; font-weight: 900; }
+    .cyan-btn:disabled { cursor: default; opacity: .7; }
+    .admin-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px; }
+    .console { height: 410px; display: flex; flex-direction: column; padding: 14px; border: 1px solid var(--cyan); border-radius: 12px; background: #040812; }
+    .console-log { flex: 1; overflow: auto; color: #7dd3fc; font-family: monospace; font-size: 12px; line-height: 1.6; }
+    .console-row { display: flex; gap: 8px; }
+    .console-input { flex: 1; padding: 8px 10px; }
+    .table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { padding: 9px; border-bottom: 1px solid var(--border); text-align: left; }
+    .mini-btn { border: 1px solid var(--border); border-radius: 5px; background: #132240; color: white; padding: 5px 7px; margin: 2px; }
+    .player-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    #gameFrame, #gameCanvas { width: 100%; height: min(540px,65vh); border: 1px solid var(--cyan); border-radius: 13px; background: #030712; }
+    #gameFrame { display: none; }
+    .pebbles-hub { position: fixed; right: 14px; bottom: 14px; z-index: 40; display: flex; align-items: center; gap: 8px; max-width: calc(100vw - 28px); padding: 8px 10px; border: 1px solid var(--cyan); border-radius: 14px; background: #0b1426; box-shadow: 0 12px 30px rgba(0,0,0,.5); }
+    .hub-avatar { font-size: 24px; }
+    .hub-copy { max-width: 210px; }
+    .hub-copy strong { display: block; font-size: 11px; }
+    .hub-copy span { display: block; max-width: 210px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 10px; }
+    .hub-btn { border: 1px solid var(--border); border-radius: 6px; background: #132240; color: white; padding: 6px 7px; font-size: 10px; font-weight: 800; }
+    .toast { position: fixed; z-index: 110; right: 18px; top: 74px; display: none; max-width: calc(100vw - 36px); padding: 10px 14px; border: 1px solid var(--cyan); border-radius: 10px; background: #0d182e; font-size: 13px; font-weight: 800; }
+    @media (max-width: 980px) {
+      .search { width: 150px; } .admin-grid { grid-template-columns: 1fr; }
     }
-    .sidebar.collapsed { display: none; }
-    .side-head { font-size: 0.65rem; font-weight: 800; color: var(--muted); letter-spacing: 0.08em; padding: 0 0.5rem; text-transform: uppercase; }
-    .side-btn {
-      width: 100%; background: transparent; border: 1px solid transparent; color: #cbd5e1;
-      padding: 0.48rem 0.65rem; border-radius: 8px; font-size: 0.81rem; font-weight: 600;
-      cursor: pointer; display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.18rem;
+    @media (max-width: 760px) {
+      .topbar { height: auto; min-height: 62px; flex-wrap: wrap; padding: 10px; } .topbar > .nav-group:last-child { width: 100%; } .search { flex: 1; width: 100px; }
+      .sidebar { position: fixed; z-index: 35; top: 62px; bottom: 0; width: 246px; box-shadow: 15px 0 40px rgba(0,0,0,.35); } .sidebar.closed { width: 0; transform: translateX(-100%); }
+      .main { padding: 14px; } .hero { align-items: flex-start; padding: 18px; } .pebbles-panel { min-width: 0; width: 100%; }
+      .filter-row { align-items: flex-start; } .hub-copy { display: none; } .game-grid { grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); }
     }
-    .side-btn:hover, .side-btn.active { background: rgba(56, 189, 248, 0.13); border-color: rgba(56, 189, 248, 0.35); color: var(--cyan); }
-    .mini-tag { font-size: 0.62rem; font-weight: 900; padding: 0.14rem 0.4rem; border-radius: 5px; }
-    .tag-new { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
-    .tag-vip-sm { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
-    .tag-wtp { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8; }
-    .user-box {
-      background: #0c1528; border: 1px solid var(--border); border-radius: 10px;
-      padding: 0.65rem; display: flex; align-items: center; justify-content: space-between;
+  </style>
+</head>
+<body>
+  <div class="overlay" id="adminLockModal">
+    <div class="modal">
+      <h2>Admin Security Gate</h2>
+      <p>Enter the master admin password.</p>
+      <div class="field"><label for="adminPassInput">Master Password</label><input id="adminPassInput" type="password"></div>
+      <p id="adminLockErr" style="display:none;color:var(--danger)">Access Denied.</p>
+      <div class="actions"><button class="link-btn" id="adminCancelBtn">Cancel</button><button class="cyan-btn" id="adminUnlockBtn">Unlock</button></div>
+    </div>
+  </div>
+  <header class="topbar">
+    <div class="nav-group">
+      <button class="link-btn" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+      <button class="brand" id="brandBtn"><span class="brand-logo">🐧</span><span><strong>GAMELAND</strong><small>By Pebbles The Penguin</small></span></button>
+      <span class="pill" id="topCoinPill">15</span>
+    </div>
+    <div class="nav-group">
+      <input class="search" id="searchInput" type="search" placeholder="Search games..." aria-label="Search games">
+      <button class="top-btn" id="cloudTopBtn">☁️ CLOUD</button>
+      <button class="top-btn" id="vipTopBtn">👑 VIP</button>
+      <button class="top-btn" id="shopTopBtn">🛒 SHOP</button>
+      <button class="top-btn" id="adminTopBtn">🛡️ ADMIN</button>
+      <span class="pill" id="dailyPill">0/20 Today</span>
+    </div>
+  </header>
+  <div class="workspace">
+    <aside class="sidebar" id="sidebar">
+      <div>
+        <div class="side-head">Categories</div>
+        <div id="catMenu">
+          <button class="side-btn active" data-cat="All"><span>🌐 All Games &amp; Tools</span></button>
+          <button class="side-btn" data-cat="Cloud"><span>☁️ Cloud Gaming</span><span class="mini-tag tag-purple">PLAT+</span></button>
+          <button class="side-btn" data-cat="Survival"><span>⛏️ Survival / Voxel</span></button>
+          <button class="side-btn" data-cat="Action"><span>⚡ Action Games</span></button>
+          <button class="side-btn" data-cat="Arcade"><span>🕹️ Arcade Games</span></button>
+          <button class="side-btn" data-cat="Puzzle"><span>🧩 Puzzle Games</span></button>
+          <button class="side-btn" data-cat="Racing"><span>🏎️ Racing &amp; Driving</span></button>
+          <button class="side-btn" data-cat="Skill"><span>🎵 Rhythm &amp; Skill</span></button>
+        </div>
+      </div>
+      <div>
+        <div class="side-head">Library</div>
+        <button class="side-btn" id="shopSideBtn"><span>🛍️ Point Shop</span><span class="mini-tag tag-gold">15</span></button>
+        <button class="side-btn" id="favoritesBtn"><span>❤️ Favorites</span><span class="mini-tag" id="favCountTag">0</span></button>
+        <button class="side-btn" id="trendingBtn"><span>🔥 Top Trending</span></button>
+        <button class="side-btn" id="newBtn"><span>✨ Newest Arrivals</span><span class="mini-tag tag-green">NEW</span></button>
+        <button class="side-btn" id="vipSideBtn"><span>👑 VIP Early Access</span><span class="mini-tag tag-gold">VIP</span></button>
+      </div>
+      <div>
+        <div class="side-head">Tools</div>
+        <button class="side-btn" id="panicBtn"><span>👁️ Panic Disguise</span></button>
+        <button class="side-btn" id="statusBtn"><span>📈 Game Status Tracker</span></button>
+      </div>
+      <div class="user-box"><div><strong id="sideUser">pebbles_guest (NONE)</strong><small style="color:var(--muted)">PREVIEW MODE</small></div><span class="mini-tag" id="sideCoinTag">15</span></div>
+    </aside>
+    <main class="main">
+      <section id="gamesView" class="view active">
+        <div class="hero">
+          <div><h1>✦ PEBBLES' PENGUIN ARCADE</h1><p>Instant Arctic Gaming, Zero Restrictions. Play open-source HTML5 games, earn 1 Token per game, and build your collection.</p></div>
+          <div class="pebbles-panel"><div class="pebbles-avatar">🐧</div><div><strong>Pebbles The Penguin</strong><small>Happiness: <span id="happyVal">85%</span> • Tier: <span id="tierVal">NONE</span></small><br><button class="hub-btn" id="heroFeedBtn">🐟 Feed (2 PTS)</button></div></div>
+        </div>
+        <div style="margin-bottom:16px"><button class="cyan-btn" id="randomBtn">🔀 Slide Into Random Game</button></div>
+        <div class="filter-row">
+          <div class="chips" id="chipBar">
+            <button class="chip active" data-tag="All">All</button><button class="chip" data-tag="#popular">#popular</button><button class="chip" data-tag="#voxel">#voxel</button><button class="chip" data-tag="#arcade">#arcade</button><button class="chip" data-tag="#puzzle">#puzzle</button><button class="chip" data-tag="#racing">#racing</button><button class="chip" data-tag="#skill">#skill</button>
+          </div>
+          <select class="sort" id="sortSelect"><option value="popular">Most Popular</option><option value="rating">Highest Rated</option><option value="az">A - Z</option></select>
+        </div>
+        <div class="section-head"><h2 id="libraryTitle">All Unblocked Games</h2><span id="showingLabel">Showing 12 available games</span></div>
+        <div class="game-grid" id="gameGrid"></div>
+      </section>
+      <section id="shopView" class="view">
+        <div class="section-head"><h2>👑 VIP Lounge &amp; Point Shop</h2><button class="link-btn" id="backToArcade1">← Back to Arcade</button></div>
+        <div class="shop-grid" id="vipShopGrid"></div>
+      </section>
+      <section id="adminView" class="view">
+        <div class="section-head"><h2>🛡️ Pebbles Admin Console</h2><button class="link-btn" id="backToArcade2">← Exit Admin</button></div>
+        <div class="admin-grid">
+          <div class="console"><div class="console-log" id="consoleLog"></div><div class="console-row"><input class="console-input" id="consoleCmd" placeholder="Type /help for commands"><button class="cyan-btn" id="consoleExecBtn">Run</button></div></div>
+          <div class="table-wrap"><table><thead><tr><th>User</th><th>Coins</th><th>Tier</th><th>Status</th><th>Controls</th></tr></thead><tbody id="adminUserTable"></tbody></table></div>
+        </div>
+      </section>
+      <section id="playerView" class="view">
+        <div class="player-head"><h2 id="activeGameTitle">Game</h2><div><button class="link-btn" id="backToArcade3">← Back to Games</button><button class="link-btn" id="fullscreenBtn">⛶ Fullscreen</button></div></div>
+        <iframe id="gameFrame" title="Game player"></iframe><canvas id="gameCanvas" width="900" height="540"></canvas>
+      </section>
+    </main>
+  </div>
+  <div class="pebbles-hub" id="pebblesHub"><div class="hub-avatar">🐧</div><div class="hub-copy"><strong>PEBBLES HUB</strong><span id="hubQuote">Slide into fun! What game today?</span></div><button class="hub-btn" id="hubTipBtn">Tips</button><button class="hub-btn" id="hubJokeBtn">Jokes</button><button class="hub-btn" id="hubFeedBtn">🐟 Feed</button></div>
+  <div class="toast" id="toast"></div>
+  <script>
+    const GAMES = [
+      {id:"voxel-web",title:"Voxel Craft Web",cat:"Survival",tag:"#voxel",desc:"Sandbox voxel mining, crafting, and block building in WebGL.",rating:4.9,plays:"41.2k",color:"linear-gradient(135deg,#15803d,#4ade80)",icon:"⛏️",pick:true,trending:true,isNew:false,tier:"free",url:"games/voxel-craft/index.html",fallback:"snake"},
+      {id:"hextris",title:"Hextris Puzzle",cat:"Puzzle",tag:"#puzzle",desc:"Fast-paced hexagonal color-matching arcade puzzle.",rating:4.9,plays:"36.9k",color:"linear-gradient(135deg,#0284c7,#38bdf8)",icon:"⬡",pick:true,trending:true,isNew:false,tier:"free",url:"games/hextris/index.html",fallback:"dodge"},
+      {id:"2048",title:"2048 Glacier Edition",cat:"Puzzle",tag:"#puzzle",desc:"Slide and merge frozen number tiles to reach 2048.",rating:4.8,plays:"35.4k",color:"linear-gradient(135deg,#0f766e,#2dd4bf)",icon:"🧊",pick:true,trending:true,isNew:false,tier:"free",url:"games/2048/index.html",fallback:"snake"},
+      {id:"flappy-penguin",title:"Flappy Penguin",cat:"Arcade",tag:"#arcade",desc:"Flap through icy glacier pipes and reach high scores.",rating:4.9,plays:"32.1k",color:"linear-gradient(135deg,#1d4ed8,#60a5fa)",icon:"🐧",pick:true,trending:true,isNew:false,tier:"free",url:"games/flappy-penguin/index.html",fallback:"dodge"},
+      {id:"tetris-rush",title:"Tetris Glacier Rush",cat:"Puzzle",tag:"#puzzle",desc:"Stack falling ice polyominoes and clear full lines.",rating:4.9,plays:"28.4k",color:"linear-gradient(135deg,#6d28d9,#a855f7)",icon:"🟦",pick:true,trending:false,isNew:false,tier:"free",url:"games/tetris/index.html",fallback:"dodge"},
+      {id:"racer-js",title:"Outrun Horizon JS",cat:"Racing",tag:"#racing",desc:"Retro pseudo-3D highway racing with turbo boost.",rating:4.8,plays:"24.5k",color:"linear-gradient(135deg,#ca8a04,#facc15)",icon:"🏎️",pick:true,trending:false,isNew:true,tier:"free",url:"games/racer/index.html",fallback:"dodge"},
+      {id:"space-invaders",title:"Astray & Void Shooter",cat:"Action",tag:"#arcade",desc:"Defend the arctic station from incoming asteroid waves.",rating:4.8,plays:"21.6k",color:"linear-gradient(135deg,#dc2626,#f97316)",icon:"🚀",pick:false,trending:false,isNew:false,tier:"free",url:"games/void-shooter/index.html",fallback:"shooter"},
+      {id:"pacman-ice",title:"Pac-Ice Classic",cat:"Arcade",tag:"#popular",desc:"Chomp all ice dots while dodging arctic ghosts.",rating:4.9,plays:"19.8k",color:"linear-gradient(135deg,#b45309,#f59e0b)",icon:"🟡",pick:true,trending:false,isNew:false,tier:"free",url:"games/pacman/index.html",fallback:"snake"},
+      {id:"vip-arena",title:"Royal Aurora Arena",cat:"Action",tag:"#skill",desc:"Gold VIP Exclusive: high-speed aurora gauntlet.",rating:5,plays:"18.2k",color:"linear-gradient(135deg,#92400e,#fbbf24)",icon:"👑",pick:false,trending:true,isNew:false,tier:"gold",url:"games/aurora-arena/index.html",fallback:"shooter"},
+      {id:"cloud-1",title:"Cloud Node: OpenTTD Web",cat:"Cloud",tag:"#popular",desc:"Platinum Cloud Node: Full transport tycoon simulation.",rating:5,plays:"15.1k",color:"linear-gradient(135deg,#581c87,#a855f7)",icon:"☁️",pick:false,trending:true,isNew:true,tier:"platinum",url:"games/cloud-sim/index.html",fallback:"dodge"},
+      {id:"cloud-2",title:"Cloud Node: QuakeJS Arena",cat:"Cloud",tag:"#skill",desc:"Platinum Cloud Node: 3D WebGL arena shooter.",rating:5,plays:"14.7k",color:"linear-gradient(135deg,#4c1d95,#38bdf8)",icon:"⚡",pick:false,trending:false,isNew:true,tier:"platinum",url:"games/cloud-arena/index.html",fallback:"shooter"},
+      {id:"cloud-3",title:"Cloud Node: Supreme Voxel",cat:"Cloud",tag:"#voxel",desc:"Platinum Cloud Node: Shaders and extended render distance.",rating:5,plays:"12.9k",color:"linear-gradient(135deg,#1e3a8a,#c084fc)",icon:"💎",pick:false,trending:false,isNew:true,tier:"platinum",url:"games/cloud-voxel/index.html",fallback:"snake"}
+    ];
+    const VIP_TIERS = [
+      {id:"gold",name:"Gold VIP Pass 👑",cost:100,mult:1.25,desc:"Unlocks Gold VIP Exclusive games and a 1.25x Points Multiplier."},
+      {id:"platinum",name:"Platinum VIP Pass ⚡",cost:250,mult:1.5,desc:"Unlocks Cloud Gaming and a 1.5x Points Multiplier."},
+      {id:"diamond",name:"Diamond Supreme VIP 💎",cost:500,mult:2,desc:"Unlocks all tiers, 2x Points Multiplier, and Supreme Status."}
+    ];
+    const TIER_RANK = {none:0,gold:1,platinum:2,diamond:3};
+    const todayKey = new Date().toISOString().slice(0,10);
+    let db = JSON.parse(localStorage.getItem("gameland_users_db") || "{}");
+    const currentUser = "pebbles_guest";
+    if (!db[currentUser]) db[currentUser] = {username:currentUser,pass:"guest",coins:15,dailyDate:todayKey,dailyEarned:0,vip:"none",favorites:[],happiness:85,banned:false,banUntil:0};
+    let adminUnlocked=false, currentFilter="All", currentTag="All", animLoop=null, disguised=false;
+    function saveDB(){localStorage.setItem("gameland_users_db",JSON.stringify(db));updateHUD();}
+    function showToast(message){const el=document.getElementById("toast");el.textContent=message;el.style.display="block";clearTimeout(el._timer);el._timer=setTimeout(()=>el.style.display="none",3200);}
+    function updateHUD(){
+      const u=db[currentUser]; if(!u)return;
+      if(u.dailyDate!==todayKey){u.dailyDate=todayKey;u.dailyEarned=0;}
+      if(!Array.isArray(u.favorites))u.favorites=[];
+      document.getElementById("topCoinPill").textContent=Math.floor(u.coins);
+      document.getElementById("sideCoinTag").textContent=Math.floor(u.coins);
+      document.getElementById("dailyPill").textContent=`${u.dailyEarned}/20 Today`;
+      document.getElementById("sideUser").textContent=`${u.username} (${u.vip.toUpperCase()})`;
+      document.getElementById("tierVal").textContent=u.vip.toUpperCase();
+      document.getElementById("happyVal").textContent=`${u.happiness||85}%`;
+      document.getElementById("favCountTag").textContent=u.favorites.length;
     }
-    .main { flex: 1; padding: 1.35rem; max-width: 1400px; margin: 0 auto; width: 100%; }
-    .hero {
-      background: radial-gradient(circle at top right, #162e58, #0b1324 72%);
-      border: 1px solid var(--border); border-radius: 16px; padding: 1.45rem;
-      display: flex; justify-content: space-between; align-items: center; gap: 1.25rem;
-      flex-wrap: wrap; margin-bottom: 1.15rem;
+    function switchView(view){
+      cancelAnimationFrame(animLoop);
+      document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+      document.getElementById(view+"View").classList.add("active");
+      if(view==="shop")renderShop();
+      if(view==="admin")renderAdminUsers();
+      if(view==="games")renderGames();
     }
-    .pebbles-panel {
-      background: rgba(8, 14, 28, 0.85); border: 1px solid var(--border); border-radius: 13px;
-      padding: 0.9rem; width: 300px; display: flex; gap: 0.8rem; align-items: center;
+    function renderGames(){
+      const u=db[currentUser], rank=TIER_RANK[u.vip]||0, favs=u.favorites||[];
+      const q=document.getElementById("searchInput").value.toLowerCase();
+      const sort=document.getElementById("sortSelect").value;
+      let list=GAMES.filter(g=>{
+        const filter=currentFilter==="All"||(currentFilter==="Favorites"&&favs.includes(g.id))||(currentFilter==="Trending"&&g.trending)||(currentFilter==="New"&&g.isNew)||(currentFilter==="VIP"&&g.tier!=="free")||(currentFilter===g.cat);
+        return filter&&(currentTag==="All"||g.tag===currentTag)&&(g.title.toLowerCase().includes(q)||g.desc.toLowerCase().includes(q));
+      });
+      if(sort==="az")list.sort((a,b)=>a.title.localeCompare(b.title));
+      if(sort==="rating")list.sort((a,b)=>b.rating-a.rating);
+      document.getElementById("showingLabel").textContent=`Showing ${list.length} available games`;
+      document.getElementById("libraryTitle").textContent=currentFilter==="All"?"All Unblocked Games":currentFilter==="Favorites"?"Favorite Games":currentFilter==="Trending"?"Top Trending":currentFilter==="New"?"Newest Arrivals":`${currentFilter} Games`;
+      const grid=document.getElementById("gameGrid");grid.innerHTML="";
+      list.forEach(g=>{
+        const locked=rank<(TIER_RANK[g.tier]||0),isFav=favs.includes(g.id);
+        const card=document.createElement("article");card.className="game-card";
+        card.innerHTML=`<div class="thumb" style="background:${g.color}">
+          <span class="badge cat">${g.cat}</span>${g.pick?'<span class="badge pick">✦ Pick</span>':""}${g.tier==="gold"?'<span class="badge tier">👑 GOLD</span>':g.tier==="platinum"?'<span class="badge tier cloud">☁️ PLAT+</span>':""}
+          <button class="favorite" type="button" aria-label="Favorite">${isFav?"❤️":"🤍"}</button><span>${locked?"🔒":g.icon}</span>
+          </div><div class="game-body"><div><div class="game-title">${g.title}</div><div class="game-desc">${g.desc}</div></div><div class="game-meta"><span>⭐ ${g.rating}</span><span>👁️ ${g.plays}</span></div></div>`;
+        card.querySelector(".favorite").onclick=e=>{
+          e.stopPropagation();u.favorites=u.favorites.includes(g.id)?u.favorites.filter(id=>id!==g.id):[...u.favorites,g.id];saveDB();renderGames();
+        };
+        card.onclick=()=>{
+          if(locked){showToast(g.tier==="platinum"?"☁️ Cloud Gaming requires Platinum or Diamond VIP!":"👑 Requires Gold VIP or higher!");switchView("shop");return;}
+          launchGame(g);
+        };
+        grid.appendChild(card);
+      });
     }
-    .filter-row {
-      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.1rem;
+    function renderShop(){
+      const u=db[currentUser],grid=document.getElementById("vipShopGrid");grid.innerHTML="";
+      VIP_TIERS.forEach(t=>{
+        const owned=u.vip===t.id||TIER_RANK[u.vip]>TIER_RANK[t.id];
+        const card=document.createElement("div");card.className="vip-card";
+        card.innerHTML=`<h3>${t.name}</h3><p>${t.desc}</p><div class="vip-foot"><strong style="color:#fcd34d">🪙 ${t.cost} PTS</strong><button class="cyan-btn" ${owned?'disabled':''}>${owned?"✓ Unlocked":"Unlock"}</button></div>`;
+        card.querySelector("button").onclick=()=>{
+          if(u.coins<t.cost){showToast("Not enough tokens! Earn 1 per game, up to 20 daily.");return;}
+          u.coins-=t.cost;u.vip=t.id;saveDB();renderShop();renderGames();showToast(`🎉 Unlocked ${t.name}!`);
+        };
+        grid.appendChild(card);
+      });
     }
-    .chip-bar { display: flex; gap: 0.38rem; flex-wrap: wrap; }
-    .chip {
-      background: #0e172a; border: 1px solid var(--border); color: var(--muted);
-      padding: 0.3rem 0.65rem; border-radius: 7px; font-size: 0.76rem; font-weight: 600; cursor: pointer;
+    async function launchGame(g){
+      const u=db[currentUser];
+      if(u.banned||(u.banUntil&&Date.now()<u.banUntil)){showToast("Your account is temporarily or permanently banned.");return;}
+      if(u.dailyEarned<20){
+        const mult=u.vip==="diamond"?2:u.vip==="platinum"?1.5:u.vip==="gold"?1.25:1;
+        u.coins+=1*mult;u.dailyEarned+=1;saveDB();showToast(`🪙 +${1*mult} Token! (${u.dailyEarned}/20 today)`);
+      }
+      switchView("player");document.getElementById("activeGameTitle").textContent=`${g.icon} ${g.title}`;
+      const frame=document.getElementById("gameFrame"),canvas=document.getElementById("gameCanvas");
+      try{const res=await fetch(g.url,{method:"HEAD"});if(res.ok){canvas.style.display="none";frame.style.display="block";frame.src=g.url;return;}}catch(e){}
+      frame.style.display="none";frame.src="";canvas.style.display="block";runFallback(g.fallback);
     }
-    .chip.active, .chip:hover { background: var(--cyan); color: #04101f; border-color: var(--cyan); }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(235px, 1fr)); gap: 1.05rem; }
-    .card {
-      background: var(--card); border: 1px solid var(--border); border-radius: 13px;
-      overflow: hidden; cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease;
-      display: flex; flex-direction: column;
+    function runFallback(mode){
+      const canvas=document.getElementById("gameCanvas"),ctx=canvas.getContext("2d");
+      let px=420,keys={},items=[],score=0,tick=0,snake=[{x:10,y:10}],dir={x:1,y:0},food={x:15,y:10};
+      window.onkeydown=e=>{keys[e.key]=true;if(e.key==="ArrowUp"&&dir.y===0)dir={x:0,y:-1};if(e.key==="ArrowDown"&&dir.y===0)dir={x:0,y:1};if(e.key==="ArrowLeft"&&dir.x===0)dir={x:-1,y:0};if(e.key==="ArrowRight"&&dir.x===0)dir={x:1,y:0};};
+      window.onkeyup=e=>keys[e.key]=false;
+      function loop(){
+        ctx.fillStyle="#060b16";ctx.fillRect(0,0,900,540);
+        if(mode==="snake"){
+          if(++tick%7===0){const head={x:(snake[0].x+dir.x+30)%30,y:(snake[0].y+dir.y+18)%18};snake.unshift(head);if(head.x===food.x&&head.y===food.y){score+=10;food={x:Math.floor(Math.random()*30),y:Math.floor(Math.random()*18)}}else snake.pop();}
+          ctx.fillStyle="#f43f5e";ctx.fillRect(food.x*30+4,food.y*30+4,22,22);ctx.fillStyle="#38bdf8";snake.forEach(s=>ctx.fillRect(s.x*30+2,s.y*30+2,26,26));
+        }else{
+          if(keys.ArrowLeft||keys.a)px=Math.max(20,px-8);if(keys.ArrowRight||keys.d)px=Math.min(840,px+8);
+          if(Math.random()<.04)items.push({x:Math.random()*850,y:-20});
+          ctx.font="36px serif";ctx.fillText("🐧",px,480);items.forEach((it,i)=>{it.y+=5;ctx.fillText("🧊",it.x,it.y);if(it.y>440&&it.y<500&&Math.abs(it.x-px)<35){score=0;items=[];}if(it.y>540){items.splice(i,1);score+=5;}});
+        }
+        ctx.fillStyle="#fff";ctx.font="bold 18px sans-serif";ctx.fillText(`SCORE: ${score}`,22,32);ctx.fillStyle="#91a0b8";ctx.font="12px sans-serif";ctx.fillText("Arrow keys / A D to move",22,56);
+        animLoop=requestAnimationFrame(loop);
+      }
+      loop();
     }
-    .card:hover { transform: translateY(-4px); border-color: var(--cyan); background: var(--card-hover); }
-    .card-thumb {
-      height: 128px; position: relative; display: flex; align-items: center; justify-content: center; font-size: 3rem;
+    function launchRandom(){const rank=TIER_RANK[db[currentUser].vip]||0;const pool=GAMES.filter(g=>rank>=TIER_RANK[g.tier]);if(pool.length)launchGame(pool[Math.floor(Math.random()*pool.length)]);}
+    function openAdminGate(){if(adminUnlocked){switchView("admin");return;}document.getElementById("adminPassInput").value="";document.getElementById("adminLockErr").style.display="none";document.getElementById("adminLockModal").style.display="flex";}
+    function logConsole(message){const box=document.getElementById("consoleLog"),line=document.createElement("div");line.textContent=`[${new Date().toLocaleTimeString()}] ${message}`;box.appendChild(line);box.scrollTop=box.scrollHeight;}
+    function renderAdminUsers(){
+      const tbody=document.getElementById("adminUserTable");tbody.innerHTML="";
+      Object.values(db).forEach(u=>{
+        const tempActive=u.banUntil&&Date.now()<u.banUntil,status=u.banned?"PERM BANNED":tempActive?`TEMP (${Math.ceil((u.banUntil-Date.now())/60000)}m)`:"ACTIVE";
+        const tr=document.createElement("tr");tr.innerHTML=`<td>@${u.username}</td><td>🪙 ${Math.floor(u.coins)}</td><td>${u.vip.toUpperCase()}</td><td>${status}</td><td><button class="mini-btn" data-action="coins" data-value="10">+10</button><button class="mini-btn" data-action="vip" data-value="diamond">Diamond</button><button class="mini-btn" data-action="tempban" data-value="10">10m Ban</button><button class="mini-btn" data-action="unban">Unban</button></td>`;
+        tr.querySelectorAll("button").forEach(btn=>btn.onclick=()=>modUser(u.username,btn.dataset.action,btn.dataset.action==="coins"?Number(btn.dataset.value):btn.dataset.value||true));
+        tbody.appendChild(tr);
+      });
     }
-    .cat-badge {
-      position: absolute; top: 9px; left: 9px; background: rgba(6, 11, 22, 0.82);
-      border: 1px solid var(--border); padding: 0.18rem 0.48rem; border-radius: 5px;
-      font-size: 0.63rem; font-weight: 800; text-transform: uppercase;
+    function modUser(user,action,val){
+      if(!adminUnlocked||!db[user])return;
+      if(action==="coins")db[user].coins+=val;
+      if(action==="vip")db[user].vip=val;
+      if(action==="tempban")db[user].banUntil=Date.now()+Number(val)*60000;
+      if(action==="unban"){db[user].banned=false;db[user].banUntil=0;}
+      saveDB();renderAdminUsers();renderGames();
     }
-    .pick-badge {
-      position: absolute; top: 9px; left: 78px; background: rgba(56, 189, 248, 0.22);
-      color: var(--cyan); border: 1px solid var(--cyan); padding: 0.18rem 0.45rem;
-      border-radius: 5px; font-size: 0.63rem; font-weight: 800;
-    }
-    .vip-gold-badge {
-      position: absolute; top: 34px; left: 9px; background: rgba(245, 158, 11, 0.25);
-      color: #fbbf24; border: 1px solid var(--gold); padding: 0.18rem 0.48rem;
-      border-radius: 5px; font-size: 0.63rem; font-weight: 900;
-    }
-    .cloud-badge {
-      position: absolute; top: 34px; left: 9px; background: rgba(168, 85, 247, 0.28);
-      color: #e9d5ff; border: 1px solid var(--purple); padding: 0.18rem 0.48rem;
-      border-radius: 5px; font-size: 0.63rem; font-weight: 900;
-    }
-    .fav-heart {
-      position: absolute; top: 8px; right: 8px; background: rgba(6, 11, 22, 0.78);
-      border: 1px solid var(--border); width: 27px; height: 27px; border-radius: 999px;
-      display: flex; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer;
-    }
-    .card-body { padding: 0.85rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-    .card-title { font-weight: 800; font-size: 0.96rem; margin-bottom: 0.28rem; }
-    .card-desc { font-size: 0.76rem; color: var(--muted); line-height: 1.38; margin-bottom: 0.7rem; }
-    .card-footer { display: flex; justify-content: space-between; font-size: 0.74rem; color: var(--muted); font-weight: 600; }
-    .pebbles-hub {
-      position: fixed; bottom: 14px; right: 14px; background: #0b1426; border: 1px solid var(--cyan);
-      border-radius: 14px; padding: 0.55rem 0.85rem; display: flex; align-items: center; gap: 0.65rem;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); z-index: 50; font-size: 0.78rem;
-    }
-    .hub-btn {
-      background: #132240; border: 1px solid var(--border); color: #e2e8f0;
-      padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.7rem; font-weight: 700; cursor: pointer;
-    }
-    .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .vip-card { background: var(--card); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 14px; padding: 1.2rem; }
-    .admin-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 1rem; margin-top: 1rem; }
-    @media (max-width: 900px) { .admin-grid { grid-template-columns: 1fr; } }
-    .console-box { background: #040812; border: 1px solid var(--cyan); border-radius: 13px; padding: 0.95rem; font-family: monospace; display: flex; flex-direction: column; height: 400px; }
-    .console-log { flex: 1; overflow-y: auto; font-size: 0.78rem; color: #7dd3fc; margin-bottom: 0.6rem; }
-    .user-table { width: 100%; border-collapse: collapse; font-size: 0.79rem; }
-    .user-table th, .user-table td { padding: 0.55rem; border-bottom: 1px solid var(--border); text-align: left; }
-    .mini-btn { background: #132240; border: 1px solid var(--border); color: #fff; padding: 0.25rem 0.48rem; border-radius: 5px; font-size: 0.69rem; cursor: pointer; margin: 2px; }
-#gameFrame, #gameCanvas { width: 100%; height: 540px; border-radius: 13px; border: 1px solid var(--cyan); background: #000; }
-.toast {
-position: fixed; top: 72px; right: 18px; background: #0d182e; border: 1px solid var(--cyan);
-color: #fff; padding: 0.65rem 1rem; border-radius: 10px; font-size: 0.82rem; font-weight: 700; z-index: 12000; display: none;
-}
-
-
-
-🛡️ Admin Security Gate
-Enter master admin password (pebbles2026).
-Master Password
-Access Denied.
-
-Cancel
-Unlock
-
-
-☰ Sidebar
-
-🐧
-
-GAMELAND
-By Pebbles The Penguin
-
-
-12 Games
-
-
-
-☁️ CLOUD
-👑 VIP LOUNGE
-🛒 SHOP 15
-🛡️ ADMIN
-0/20 Today
-
-Categories
-
-🌐 All Games & Tools
-☁️ Cloud GamingPLAT+
-⛏️ Survival / Voxel
-⚡ Action Games
-🕹️ Arcade Games
-🧩 Puzzle Games
-🏎️ Racing & Driving
-🎵 Rhythm & Skill
-Library
-
-🛍️ Point Shop & Store15
-❤️ Favorites0
-🔥 Top Trending
-✨ Newest ArrivalsNEW
-👑 VIP Early AccessVIP
-🚀 Coming SoonWTP
-Tools
-
-👁️ Panic Key & Disguise
-📈 Game Status Tracker
-PREVIEW MODE
-pebbles_guest (FREE)
-
-
-✦ PEBBLES' PENGUIN ARCADE
-Instant Arctic Gaming, Zero Restrictions. 🐧
-
-Play open-source HTML5 voxel, arcade, puzzle, and racing games directly in your browser. Earn 1 Token per game (20/day max)!
-
-🔀 Slide Into Random Game
-
-
-🐧
-
-Pebbles The Penguin
-Happiness: 85% • Tier: FREE
-🐟 Feed Pebbles (2 PTS)
-
-All
-#popular
-#voxel
-#arcade
-#puzzle
-#racing
-#skill
-
-
-Sort: Most Popular
-Sort: Highest Rated
-Sort: A - Z
-
-All Unblocked Games
-Showing 12 available games
-
-👑 VIP Lounge & Point Shop
-← Back to Arcade
-
-
-🛡️ Pebbles Admin Console
-← Exit Admin
-
-
-
-User	Coins	Tier	Status	Controls
-
-Table 1Export to Sheets
-Type /help for commands
-
-
-
-Run
-
-
-
-← Back to Games
-
-⛶ Fullscreen
-
-
-
-
-
-🐧
-
-PEBBLES HUB
-Slide into fun! What game today?
-
-Tips
-Jokes
-🐟 Feed
-const GAMES = [
-{ id: "voxel-web", title: "Voxel Craft Web (Open-Source)", cat: "Survival", tag: "#voxel", desc: "Sandbox voxel mining, crafting, and block building in WebGL.", rating: 4.9, plays: "41.2k", color: "linear-gradient(135deg,#15803d,#4ade80)", icon: "⛏️", pick: true, trending: true, isNew: false, tier: "free", url: "games/voxel-craft/index.html", fallback: "snake" },
-{ id: "hextris", title: "Hextris Puzzle", cat: "Puzzle", tag: "#puzzle", desc: "Fast-paced hexagonal color-matching arcade puzzle.", rating: 4.9, plays: "36.9k", color: "linear-gradient(135deg,#0284c7,#38bdf8)", icon: "⬡", pick: true, trending: true, isNew: false, tier: "free", url: "games/hextris/index.html", fallback: "breakout" },
-{ id: "2048", title: "2048 Glacier Edition", cat: "Puzzle", tag: "#puzzle", desc: "Slide and merge frozen number tiles to reach 2048.", rating: 4.8, plays: "35.4k", color: "linear-gradient(135deg,#0f766e,#2dd4bf)", icon: "🧊", pick: true, trending: true, isNew: false, tier: "free", url: "games/2048/index.html", fallback: "snake" },
-{ id: "flappy-penguin", title: "Flappy Penguin", cat: "Arcade", tag: "#arcade", desc: "Flap through icy glacier pipes and reach high scores.", rating: 4.9, plays: "32.1k", color: "linear-gradient(135deg,#1d4ed8,#60a5fa)", icon: "🐧", pick: true, trending: true, isNew: false, tier: "free", url: "games/flappy-penguin/index.html", fallback: "dash" },
-{ id: "tetris-rush", title: "Tetris Glacier Rush", cat: "Puzzle", tag: "#puzzle", desc: "Stack falling ice polyominoes and clear full lines.", rating: 4.9, plays: "28.4k", color: "linear-gradient(135deg,#6d28d9,#a855f7)", icon: "🟦", pick: true, trending: false, isNew: false, tier: "free", url: "games/tetris/index.html", fallback: "breakout" },
-{ id: "racer-js", title: "Outrun Horizon JS", cat: "Racing", tag: "#racing", desc: "Retro pseudo-3D highway racing with turbo boost.", rating: 4.8, plays: "24.5k", color: "linear-gradient(135deg,#ca8a04,#facc15)", icon: "🏎️", pick: true, trending: false, isNew: true, tier: "free", url: "games/racer/index.html", fallback: "dodge" },
-{ id: "space-invaders", title: "Astray & Void Shooter", cat: "Action", tag: "#arcade", desc: "Defend the arctic station from incoming asteroid waves.", rating: 4.8, plays: "21.6k", color: "linear-gradient(135deg,#dc2626,#f97316)", icon: "🚀", pick: false, trending: false, isNew: false, tier: "free", url: "games/void-shooter/index.html", fallback: "shooter" },
-{ id: "pacman-ice", title: "Pac-Ice Classic", cat: "Arcade", tag: "#popular", desc: "Chomp all ice dots while dodging arctic ghosts.", rating: 4.9, plays: "19.8k", color: "linear-gradient(135deg,#b45309,#f59e0b)", icon: "🟡", pick: true, trending: false, isNew: false, tier: "free", url: "games/pacman/index.html", fallback: "snake" },
-{ id: "vip-arena", title: "Royal Aurora Arena", cat: "Action", tag: "#skill", desc: "Gold VIP+ Exclusive: High-speed aurora gauntlet.", rating: 5.0, plays: "18.2k", color: "linear-gradient(135deg,#92400e,#fbbf24)", icon: "👑", pick: false, trending: true, isNew: false, tier: "gold", url: "games/aurora-arena/index.html", fallback: "shooter" },
-{ id: "cloud-1", title: "Cloud Node: OpenTTD Web", cat: "Cloud", tag: "#popular", desc: "Platinum+ Cloud Node: Full transport tycoon simulation.", rating: 5.0, plays: "15.1k", color: "linear-gradient(135deg,#581c87,#a855f7)", icon: "☁️", pick: false, trending: true, isNew: true, tier: "platinum", url: "games/cloud-sim/index.html", fallback: "dodge" },
-{ id: "cloud-2", title: "Cloud Node: QuakeJS Arena", cat: "Cloud", tag: "#skill", desc: "Platinum+ Cloud Node: 3D WebGL arena shooter.", rating: 5.0, plays: "14.7k", color: "linear-gradient(135deg,#4c1d95,#38bdf8)", icon: "⚡", pick: false, trending: false, isNew: true, tier: "platinum", url: "games/cloud-arena/index.html", fallback: "shooter" },
-{ id: "cloud-3", title: "Cloud Node: Supreme Voxel", cat: "Cloud", tag: "#voxel", desc: "Platinum+ Cloud Node: Shaders & extended render distance.", rating: 5.0, plays: "12.9k", color: "linear-gradient(135deg,#1e3a8a,#c084fc)", icon: "💎", pick: false, trending: false, isNew: true, tier: "platinum", url: "games/cloud-voxel/index.html", fallback: "breakout" }
-];
-const VIP_TIERS = [
-{ id: "gold", name: "Gold VIP Pass 👑", cost: 100, mult: 1.25, desc: "Unlocks Gold VIP Exclusive games & 1.25x Points Multiplier." },
-{ id: "platinum", name: "Platinum VIP Pass ⚡", cost: 250, mult: 1.5, desc: "2nd Highest Tier: Unlocks CLOUD GAMING + 1.5x Points Multiplier!" },
-{ id: "diamond", name: "Diamond Supreme VIP 💎", cost: 500, mult: 2.0, desc: "Highest Tier: Full Cloud Gaming + 2.0x Multiplier & Supreme Status." }
-];
-const TIER_RANK = { none: 0, gold: 1, platinum: 2, diamond: 3 };
-const todayKey = new Date().toISOString().slice(0, 10);
-let db = JSON.parse(localStorage.getItem("gameland_users_db") || "{}");
-const currentUser = "pebbles_guest";
-if (!db[currentUser]) {
-db[currentUser] = { username: currentUser, pass: "guest", coins: 15, dailyDate: todayKey, dailyEarned: 0, vip: "none", favorites: [], happiness: 85, banned: false, banUntil: 0 };
-}
-let adminUnlocked = false, currentFilter = "All", currentTag = "All", animLoop = null, disguised = false;
-function saveDB() { localStorage.setItem("gameland_users_db", JSON.stringify(db)); updateHUD(); }
-function showToast(m) {
-const t = document.getElementById("toast");
-t.textContent = m; t.style.display = "block";
-clearTimeout(t._t); t._t = setTimeout(() => t.style.display = "none", 3200);
-}
-function updateHUD() {
-const u = db[currentUser]; if (!u) return;
-if (u.dailyDate !== todayKey) { u.dailyDate = todayKey; u.dailyEarned = 0; }
-if (!Array.isArray(u.favorites)) u.favorites = [];
-document.getElementById("topCoinPill").textContent = Math.floor(u.coins);
-document.getElementById("sideCoinTag").textContent = Math.floor(u.coins);
-document.getElementById("dailyPill").textContent = ${u.dailyEarned}/20 Today;
-document.getElementById("sideUser").textContent = ${u.username} (${u.vip.toUpperCase()});
-document.getElementById("tierVal").textContent = u.vip.toUpperCase();
-document.getElementById("happyVal").textContent = ${u.happiness || 85}%;
-document.getElementById("favCountTag").textContent = u.favorites.length;
-}
-function openAdminGate() {
-if (adminUnlocked) return switchView("admin");
-document.getElementById("adminLockErr").style.display = "none";
-document.getElementById("adminPassInput").value = "";
-document.getElementById("adminLockModal").style.display = "flex";
-}
-document.getElementById("adminCancelBtn").onclick = () => document.getElementById("adminLockModal").style.display = "none";
-document.getElementById("adminUnlockBtn").onclick = () => {
-const val = document.getElementById("adminPassInput").value;
-if (val === "pebbles2026" || val === "admin") {
-adminUnlocked = true;
-document.getElementById("adminLockModal").style.display = "none";
-logConsole("✓ Admin authenticated.");
-switchView("admin");
-} else document.getElementById("adminLockErr").style.display = "block";
-};
-function logConsole(msg) {
-const box = document.getElementById("consoleLog");
-const d = document.createElement("div");
-d.textContent = [${new Date().toLocaleTimeString()}] ${msg};
-box.appendChild(d); box.scrollTop = box.scrollHeight;
-}
-document.getElementById("consoleExecBtn").onclick = () => {
-if (!adminUnlocked) return;
-const raw = document.getElementById("consoleCmd").value.trim();
-document.getElementById("consoleCmd").value = "";
-if (!raw) return;
-logConsole(> ${raw});
-const p = raw.split(/\s+/), cmd = p.toLowerCase(), target = (p || "").toLowerCase();
-if (cmd === "/help") logConsole("Commands: /givecoins   | /givevip  <gold|platinum|diamond|none> | /ban  | /tempban   | /unban  | /list");
-else if (cmd === "/list") logConsole("Users: " + (Object.keys(db).join(", ") || "none"));
-else if (cmd === "/givecoins" && db[target] && !isNaN(Number(p))) { db[target].coins = Math.max(0, db[target].coins + Number(p)); saveDB(); renderAdminUsers(); logConsole(Granted ${p} coins to @${target}.); }
-else if (cmd === "/givevip" && db[target] && TIER_RANK[p?.toLowerCase()] !== undefined) { db[target].vip = p.toLowerCase(); saveDB(); renderAdminUsers(); renderGames(); logConsole(Set @${target} to ${db[target].vip.toUpperCase()}.); }
-else if (cmd === "/ban" && db[target]) { db[target].banned = true; saveDB(); renderAdminUsers(); logConsole(Permanently banned @${target}.); }
-else if (cmd === "/tempban" && db[target] && Number(p) > 0) { db[target].banUntil = Date.now() + Number(p) * 60000; saveDB(); renderAdminUsers(); logConsole(Temp-banned @${target} for ${p}m.); }
-else if (cmd === "/unban" && db[target]) { db[target].banned = false; db[target].banUntil = 0; saveDB(); renderAdminUsers(); logConsole(Unbanned @${target}.); }
-else logConsole("Invalid command. Type /help.");
-};
-function renderAdminUsers() {
-const tb = document.getElementById("adminUserTable"); tb.innerHTML = "";
-Object.values(db).forEach(u => {
-const tempActive = u.banUntil && Date.now() < u.banUntil;
-const status = u.banned ? "PERM BANNED" : (tempActive ? TEMP (${Math.ceil((u.banUntil - Date.now())/60000)}m) : "ACTIVE");
-const tr = document.createElement("tr");
-tr.innerHTML = `
-@${u.username}
-🪙 ${Math.floor(u.coins)}
-${u.vip.toUpperCase()}
-${status}
-`;
-tb.appendChild(tr);
-});
-}
-function modUser(user, action, val) {
-if (!adminUnlocked || !db[user]) return;
-if (action === "coins") db[user].coins += val;
-if (action === "vip") db[user].vip = val;
-if (action === "tempban") db[user].banUntil = Date.now() + val * 60000;
-if (action === "ban") db[user].banned = true;
-if (action === "unban") { db[user].banned = false; db[user].banUntil = 0; }
-saveDB(); renderAdminUsers(); renderGames();
-}
-function filterCat(cat) {
-currentFilter = cat;
-document.querySelectorAll("#catMenu .side-btn").forEach(b => b.classList.toggle("active", b.dataset.cat === cat));
-switchView("games");
-}
-document.querySelectorAll("#catMenu .side-btn").forEach(b => b.onclick = () => filterCat(b.dataset.cat));
-document.getElementById("chipBar").onclick = e => {
-if (!e.target.classList.contains("chip")) return;
-document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-e.target.classList.add("active");
-currentTag = e.target.dataset.tag;
-renderGames();
-};
-function renderGames() {
-const q = document.getElementById("searchInput").value.toLowerCase();
-const sort = document.getElementById("sortSelect").value;
-const u = db[currentUser];
-const rank = u ? (TIER_RANK[u.vip] || 0) : 0;
-const favs = u?.favorites || [];
-let list = GAMES.filter(g => {
-const matchFilter =
-currentFilter === "All" ||
-(currentFilter === "Favorites" && favs.includes(g.id)) ||
-(currentFilter === "Trending" && g.trending) ||
-(currentFilter === "New" && g.isNew) ||
-(currentFilter === "VIP" && g.tier !== "free") ||
-g.cat === currentFilter;
-const matchTag = currentTag === "All" || g.tag === currentTag;
-const matchQ = g.title.toLowerCase().includes(q) || g.desc.toLowerCase().includes(q);
-return matchFilter && matchTag && matchQ;
-});
-if (sort === "az") list.sort((a, b) => a.title.localeCompare(b.title));
-if (sort === "rating") list.sort((a, b) => b.rating - a.rating);
-document.getElementById("showingLabel").textContent = Showing ${list.length} available games;
-const grid = document.getElementById("gameGrid"); grid.innerHTML = "";
-list.forEach(g => {
-const locked = rank < (TIER_RANK[g.tier] || 0);
-const isFav = favs.includes(g.id);
-const card = document.createElement("div");
-card.className = "card";
-card.innerHTML = <div class="card-thumb" style="background:${g.color};"> <span class="cat-badge">${g.cat}</span> ${g.pick ?✦ Pick: ""} ${g.tier === "platinum" ?☁️ PLATINUM+: (g.tier === "gold" ?👑 VIP GOLD : "")} <button type="button" class="fav-heart" data-fav="${g.id}">${isFav ? "❤️" : "🤍"}</button> <span>${locked ? "🔒" : g.icon}</span> </div> <div class="card-body"> <div> <div class="card-title">${g.title}</div> <div class="card-desc">${g.desc}</div> </div> <div class="card-footer"> <span>⭐ ${g.rating}</span> <span>👁️ ${g.plays} plays</span> </div> </div>;
-card.onclick = e => {
-if (e.target.dataset.fav) {
-e.stopPropagation();
-if (u.favorites.includes(g.id)) u.favorites = u.favorites.filter(x => x !== g.id);
-else u.favorites.push(g.id);
-saveDB(); renderGames(); return;
-}
-if (locked) {
-showToast(g.tier === "platinum" ? "☁️ Cloud Gaming requires Platinum VIP (2nd highest) or Diamond Supreme!" : "👑 Requires Gold VIP or higher!");
-return switchView("shop");
-}
-launchGame(g);
-};
-grid.appendChild(card);
-});
-}
-function renderShop() {
-const u = db[currentUser];
-const grid = document.getElementById("vipShopGrid"); grid.innerHTML = "";
-VIP_TIERS.forEach(t => {
-const owned = u && u.vip === t.id;
-const card = document.createElement("div");
-card.className = "vip-card";
-card.innerHTML =  <h3 style="margin:0 0 0.4rem;">${t.name}</h3> <p style="font-size:0.83rem;color:var(--muted);">${t.desc}</p> <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;"> <strong style="color:#fbbf24;">🪙 ${t.cost} PTS</strong> <button type="button" class="btn-cyan">${owned ? "✓ Unlocked" : "Unlock"}</button> </div>;
-card.querySelector("button").onclick = () => {
-if (owned || !u) return;
-if (u.coins < t.cost) return showToast("Not enough tokens! Earn 1/game (20/day max).");
-u.coins -= t.cost; u.vip = t.id; saveDB(); renderShop(); renderGames();
-showToast(🎉 Unlocked ${t.name}!);
-};
-grid.appendChild(card);
-});
-}
-async function launchGame(g) {
-const u = db[currentUser];
-if (u.dailyEarned < 20) {
-const mult = u.vip === "diamond" ? 2 : (u.vip === "platinum" ? 1.5 : (u.vip === "gold" ? 1.25 : 1));
-u.coins += 1 * mult; u.dailyEarned += 1; saveDB();
-showToast(🪙 +${1 * mult} Token! (${u.dailyEarned}/20 today));
-}
-switchView("player");
-document.getElementById("activeGameTitle").textContent = ${g.icon} ${g.title};
-const frame = document.getElementById("gameFrame"), canvas = document.getElementById("gameCanvas");
-try {
-const res = await fetch(g.url, { method: "HEAD" });
-if (res.ok) {
-canvas.style.display = "none";
-frame.style.display = "block";
-frame.src = g.url;
-return;
-}
-} catch (_) {}
-frame.style.display = "none"; frame.src = "";
-canvas.style.display = "block";
-showToast(Tip: Upload "${g.url}" to your GitHub repo to load the full open-source build!);
-runFallback(g.fallback);
-}
-function launchRandom() {
-const rank = TIER_RANK[db[currentUser]?.vip] || 0;
-const pool = GAMES.filter(g => rank >= (TIER_RANK[g.tier] || 0));
-launchGame(pool[Math.floor(Math.random() * pool.length)]);
-}
-function runFallback(mode) {
-const c = document.getElementById("gameCanvas"), ctx = c.getContext("2d");
-let keys = {}, score = 0, px = 420, items = [];
-let snake = [{x:10,y:10}], dir = {x:1,y:0}, food = {x:15,y:10}, tick = 0;
-window.onkeydown = e => {
-keys[e.key] = true;
-if (e.key === "ArrowUp" && dir.y === 0) dir = {x:0,y:-1};
-if (e.key === "ArrowDown" && dir.y === 0) dir = {x:0,y:1};
-if (e.key === "ArrowLeft" && dir.x === 0) dir = {x:-1,y:0};
-if (e.key === "ArrowRight" && dir.x === 0) dir = {x:1,y:0};
-};
-window.onkeyup = e => keys[e.key] = false;
-function loop() {
-ctx.fillStyle = "#060b16"; ctx.fillRect(0, 0, 900, 500);
-if (mode === "snake") {
-if (++tick % 6 === 0) {
-const head = { x: (snake[0].x + dir.x + 30) % 30, y: (snake[0].y + dir.y + 16) % 16 };
-if (snake.some(s => s.x === head.x && s.y === head.y)) { snake = [{x:10,y:10}]; score = 0; }
-else { snake.unshift(head); if (head.x === food.x && head.y === food.y) { score += 10; food = { x: Math.floor(Math.random()*30), y: Math.floor(Math.random()*16) }; } else snake.pop(); }
-}
-ctx.fillStyle = "#f43f5e"; ctx.fillRect(food.x * 30 + 4, food.y * 30 + 4, 22, 22);
-ctx.fillStyle = "#38bdf8"; snake.forEach(s => ctx.fillRect(s.x * 30 + 2, s.y * 30 + 2, 26, 26));
-} else {
-if (keys["ArrowLeft"] || keys["a"]) px = Math.max(20, px - 8);
-if (keys["ArrowRight"] || keys["d"]) px = Math.min(840, px + 8);
-if (Math.random() < 0.04) items.push({ x: Math.random() * 850, y: -20 });
-ctx.font = "36px serif"; ctx.fillText("🐧", px, 450);
-items.forEach((it, ii) => {
-it.y += 5; ctx.fillText("🧊", it.x, it.y);
-if (it.y > 410 && it.y < 460 && Math.abs(it.x - px) < 30) { score = 0; items = []; }
-if (it.y > 500) { items.splice(ii, 1); score += 5; }
-});
-}
-ctx.fillStyle = "#fff"; ctx.font = "bold 18px sans-serif";
-ctx.fillText(SCORE: ${score}  |  Upload open-source game folder to GitHub to play full version, 22, 32);
-animLoop = requestAnimationFrame(loop);
-}
-cancelAnimationFrame(animLoop); loop();
-}
-function fullscreenPlayer() {
-const f = document.getElementById("gameFrame");
-(f.style.display === "block" ? f : document.getElementById("gameCanvas")).requestFullscreen?.();
-}
-function switchView(v) {
-cancelAnimationFrame(animLoop);
-document.getElementById("gameFrame").src = "";
-["games", "shop", "admin", "player"].forEach(id => document.getElementById(id + "View").style.display = id === v ? "block" : "none");
-if (v === "shop") renderShop();
-if (v === "admin") renderAdminUsers();
-if (v === "games") renderGames();
-}
-function togglePanic() {
-disguised = !disguised;
-document.title = disguised ? "Untitled document - Google Docs" : "GAMELAND — By Pebbles The Penguin";
-showToast(disguised ? "Panic Disguise ON: Tab renamed to Google Docs" : "Panic Disguise OFF");
-}
-function feedPebbles() {
-const u = db[currentUser];
-if (!u || u.coins < 2) return showToast("You need 2 PTS to buy a fish snack!");
-u.coins -= 2; u.happiness = Math.min(100, (u.happiness || 85) + 5); saveDB();
-showToast(🐟 Yum! Pebbles' happiness is now ${u.happiness}%!);
-}
-function hubTip() { document.getElementById("hubQuote").textContent = "Play up to 20 games daily to unlock Platinum Cloud Gaming!"; }
-function hubJoke() { document.getElementById("hubQuote").textContent = "Why don't penguins like talking to strangers? They can't break the ice!"; }
-saveDB();
-renderGames();
+    function filterCat(cat){currentFilter=cat;document.querySelectorAll("#catMenu .side-btn").forEach(b=>b.classList.toggle("active",b.dataset.cat===cat));switchView("games");}
+    document.getElementById("sidebarToggle").onclick=()=>document.getElementById("sidebar").classList.toggle("closed");
+    document.getElementById("brandBtn").onclick=()=>switchView("games");
+    document.querySelectorAll("#catMenu .side-btn").forEach(b=>b.onclick=()=>filterCat(b.dataset.cat));
+    document.getElementById("chipBar").onclick=e=>{if(!e.target.matches(".chip"))return;document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));e.target.classList.add("active");currentTag=e.target.dataset.tag;renderGames();};
+    document.getElementById("searchInput").oninput=renderGames;document.getElementById("sortSelect").onchange=renderGames;
+    document.getElementById("randomBtn").onclick=launchRandom;
+    document.getElementById("shopTopBtn").onclick=()=>switchView("shop");document.getElementById("vipTopBtn").onclick=()=>switchView("shop");document.getElementById("shopSideBtn").onclick=()=>switchView("shop");document.getElementById("cloudTopBtn").onclick=()=>{currentFilter="Cloud";switchView("games");};
+    document.getElementById("adminTopBtn").onclick=openAdminGate;
+    document.getElementById("adminCancelBtn").onclick=()=>document.getElementById("adminLockModal").style.display="none";
+    document.getElementById("adminUnlockBtn").onclick=()=>{if(document.getElementById("adminPassInput").value==="pebbles2026"||document.getElementById("adminPassInput").value==="admin"){adminUnlocked=true;document.getElementById("adminLockModal").style.display="none";logConsole("✓ Admin authenticated.");switchView("admin");}else document.getElementById("adminLockErr").style.display="block";};
+    document.getElementById("backToArcade1").onclick=()=>switchView("games");document.getElementById("backToArcade2").onclick=()=>switchView("games");document.getElementById("backToArcade3").onclick=()=>switchView("games");
+    document.getElementById("favoritesBtn").onclick=()=>{currentFilter="Favorites";switchView("games");};document.getElementById("trendingBtn").onclick=()=>{currentFilter="Trending";switchView("games");};document.getElementById("newBtn").onclick=()=>{currentFilter="New";switchView("games");};document.getElementById("vipSideBtn").onclick=()=>{currentFilter="VIP";switchView("games");};
+    document.getElementById("fullscreenBtn").onclick=()=>{const frame=document.getElementById("gameFrame"),canvas=document.getElementById("gameCanvas");(frame.style.display==="block"?frame:canvas).requestFullscreen?.();};
+    document.getElementById("panicBtn").onclick=()=>{disguised=!disguised;document.title=disguised?"Untitled document - Google Docs":"GAMELAND - By Pebbles The Penguin";showToast(disguised?"Panic Disguise ON":"Panic Disguise OFF");};
+    function feedPebbles(){const u=db[currentUser];if(u.coins<2){showToast("You need 2 PTS to buy a fish snack!");return;}u.coins-=2;u.happiness=Math.min(100,(u.happiness||85)+5);saveDB();showToast(`🐟 Pebbles' happiness is now ${u.happiness}%!`);}
+    document.getElementById("heroFeedBtn").onclick=feedPebbles;document.getElementById("hubFeedBtn").onclick=feedPebbles;
+    document.getElementById("hubTipBtn").onclick=()=>document.getElementById("hubQuote").textContent="Play up to 20 games daily to unlock VIP rewards!";
+    document.getElementById("hubJokeBtn").onclick=()=>document.getElementById("hubQuote").textContent="Why don't penguins like talking to strangers? They can't break the ice!";
+    document.getElementById("statusBtn").onclick=()=>showToast(`All systems normal • ${GAMES.length} games indexed`);
+    document.getElementById("consoleExecBtn").onclick=()=>{
+      if(!adminUnlocked)return;
+      const input=document.getElementById("consoleCmd"),raw=input.value.trim();input.value="";
+      if(!raw)return;logConsole(`> ${raw}`);
+      const parts=raw.split(/\s+/),cmd=(parts[0]||"").toLowerCase(),target=(parts[1]||"").toLowerCase(),value=parts[2];
+      if(cmd=== "/help")logConsole("Commands: /givecoins <user> <amount> | /givevip <user> <gold|platinum|diamond|none> | /ban <user> | /tempban <user> <minutes> | /unban <user> | /list");
+      else if(cmd=== "/list")logConsole("Users: "+Object.keys(db).join(", "));
+      else if(cmd=== "/givecoins"&&db[target]&&Number.isFinite(Number(value))){db[target].coins=Math.max(0,db[target].coins+Number(value));saveDB();renderAdminUsers();logConsole(`Granted ${value} coins to @${target}.`);}
+      else if(cmd=== "/givevip"&&db[target]&&["gold","platinum","diamond","none"].includes(value)){db[target].vip=value;saveDB();renderAdminUsers();renderGames();logConsole(`Set @${target} to ${value.toUpperCase()}.`);}
+      else if(cmd=== "/ban"&&db[target]){db[target].banned=true;saveDB();renderAdminUsers();logConsole(`Permanently banned @${target}.`);}
+      else if(cmd=== "/tempban"&&db[target]&&Number(value)>0){db[target].banUntil=Date.now()+Number(value)*60000;saveDB();renderAdminUsers();logConsole(`Temp-banned @${target} for ${value}m.`);}
+      else if(cmd=== "/unban"&&db[target]){db[target].banned=false;db[target].banUntil=0;saveDB();renderAdminUsers();logConsole(`Unbanned @${target}.`);}
+      else logConsole("Invalid command. Type /help.");
+    };
+    saveDB();renderGames();
+  </script>
+</body>
+</html>
