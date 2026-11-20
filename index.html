@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GAMELAND — By Pebbles The Penguin</title>
+  <style>
+    :root {
+      --bg: #070d19;
+      --panel: #0d1627;
+      --card: #111c30;
+      --border: #1e2d4a;
+      --cyan: #38bdf8;
+      --gold: #f59e0b;
+      --gold-dim: rgba(245, 158, 11, 0.15);
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --green: #10b981;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    /* Modals */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(4, 8, 18, 0.92);
+      backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center;
+      z-index: 100; padding: 1rem;
+    }
+    .auth-box {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 18px;
+      width: 100%; max-width: 410px; padding: 1.75rem; box-shadow: 0 20px 50px rgba(0,0,0,0.65);
+    }
+    .auth-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; }
+    .auth-tab {
+      flex: 1; padding: 0.55rem; border-radius: 10px; border: 1px solid var(--border);
+      background: #0a1120; color: var(--muted); font-weight: 700; cursor: pointer;
+    }
+    .auth-tab.active { background: var(--cyan); color: #05101f; border-color: var(--cyan); }
+    .field { margin-bottom: 0.9rem; }
+    .field label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.35rem; font-weight: 600; }
+    .field input {
+      width: 100%; padding: 0.6rem 0.85rem; border-radius: 10px; border: 1px solid var(--border);
+      background: #080f1d; color: #fff; outline: none; font-size: 0.9rem;
+    }
+    .field input:focus { border-color: var(--cyan); }
+    /* Top Navbar */
+    .topbar {
+      min-height: 62px; background: #0a1120; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; gap: 0.75rem; position: sticky; top: 0; z-index: 30; flex-wrap: wrap;
+    }
+    .nav-left, .nav-right { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+    .brand { display: flex; align-items: center; gap: 0.55rem; cursor: pointer; }
+    .brand-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, #1d4ed8, #38bdf8);
+      display: flex; align-items: center; justify-content: center; font-size: 1.35rem;
+    }
+    .brand-title { font-weight: 800; font-size: 1.05rem; line-height: 1.1; }
+    .brand-sub { font-size: 0.7rem; color: var(--cyan); }
+    .pill-badge {
+      background: #13223b; border: 1px solid var(--border); color: var(--cyan);
+      padding: 0.25rem 0.6rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700;
+    }
+    .search-box {
+      background: #0f192d; border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.42rem 0.8rem; color: #fff; width: 200px; outline: none;
+    }
+    .search-box:focus { border-color: var(--cyan); }
+    .nav-btn {
+      background: #111c30; border: 1px solid var(--border); color: var(--text);
+      padding: 0.42rem 0.75rem; border-radius: 9px; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; gap: 0.35rem;
+    }
+    .nav-btn:hover { border-color: var(--cyan); }
+    .nav-btn.vip { background: var(--gold-dim); border-color: var(--gold); color: #fbbf24; }
+    .nav-btn.admin { background: rgba(239, 68, 68, 0.15); border-color: var(--red); color: #fca5a5; }
+    .coin-pill {
+      background: #162238; border: 1px solid #2b3f63; padding: 0.38rem 0.75rem;
+      border-radius: 999px; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem;
+    }
+    /* Layout */
+    .workspace { display: flex; flex: 1; }
+    .sidebar {
+      width: 245px; background: var(--panel); border-right: 1px solid var(--border);
+      padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 1rem;
+    }
+    .sidebar.collapsed { display: none; }
+    .side-label {
+      font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em;
+      color: var(--muted); padding: 0 0.5rem; text-transform: uppercase;
+    }
+    .pebbles-mini {
+      background: #111e36; border: 1px solid var(--border); border-radius: 12px;
+      padding: 0.75rem; cursor: pointer;
+    }
+    .pebbles-mini:hover { border-color: var(--cyan); }
+    .pebbles-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; }
+    .pebbles-avatar {
+      width: 38px; height: 38px; border-radius: 10px; background: #1e3a8a;
+      display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+    }
+    .side-list { display: flex; flex-direction: column; gap: 0.25rem; }
+    .side-item {
+      background: transparent; border: 1px solid transparent; color: #cbd5e1;
+      padding: 0.52rem 0.7rem; border-radius: 9px; text-align: left; font-size: 0.84rem;
+      font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+    }
+    .side-item:hover { background: #13223b; color: #fff; }
+    .side-item.active { background: rgba(56, 189, 248, 0.14); border-color: rgba(56, 189, 248, 0.4); color: var(--cyan); }
+    .main { flex: 1; padding: 1.4rem; max-width: 1350px; margin: 0 auto; width: 100%; }
+    /* Hero */
+    .hero {
+      background: radial-gradient(circle at top right, #162e58, #0c1629 70%);
+      border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem;
+      display: flex; justify-content: space-between; align-items: center; gap: 1.5rem;
+      flex-wrap: wrap; margin-bottom: 1.25rem;
+    }
+    .hero-tag {
+      display: inline-block; background: rgba(56, 189, 248, 0.15); color: var(--cyan);
+      border: 1px solid rgba(56, 189, 248, 0.35); padding: 0.25rem 0.65rem;
+      border-radius: 999px; font-size: 0.72rem; font-weight: 800; margin-bottom: 0.65rem;
+    }
+    .btn-primary {
+      background: linear-gradient(90deg, #0284c7, #38bdf8); color: #04101e;
+      border: none; padding: 0.58rem 1.1rem; border-radius: 10px; font-weight: 800; cursor: pointer;
+    }
+    .btn-secondary {
+      background: #13223b; color: #cbd5e1; border: 1px solid var(--border);
+      padding: 0.58rem 1rem; border-radius: 10px; font-weight: 600; font-size: 0.84rem;
+    }
+    .pebbles-box {
+      background: rgba(10, 18, 34, 0.85); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1rem; width: 310px; display: flex; gap: 0.85rem; align-items: center;
+    }
+    .pebbles-big {
+      width: 60px; height: 60px; border-radius: 14px; background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+      display: flex; align-items: center; justify-content: center; font-size: 2.2rem; flex-shrink: 0;
+    }
+    /* Tags & Grid */
+    .filter-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.2rem;
+    }
+    .tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .tag-btn {
+      background: #101b30; border: 1px solid var(--border); color: var(--muted);
+      padding: 0.32rem 0.68rem; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+    }
+    .tag-btn.active, .tag-btn:hover { background: var(--cyan); color: #061220; border-color: var(--cyan); }
+    select {
+      background: #101b30; border: 1px solid var(--border); color: var(--text);
+      padding: 0.4rem 0.75rem; border-radius: 8px; font-size: 0.82rem;
+    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1.1rem; }
+    .game-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      overflow: hidden; cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease;
+      display: flex; flex-direction: column;
+    }
+    .game-card:hover { transform: translateY(-4px); border-color: var(--cyan); }
+    .card-banner {
+      height: 125px; position: relative; display: flex; align-items: center; justify-content: center; font-size: 3rem;
+    }
+    .badge-top-left {
+      position: absolute; top: 10px; left: 10px; background: rgba(7, 13, 25, 0.8);
+      border: 1px solid var(--border); padding: 0.2rem 0.5rem; border-radius: 6px;
+      font-size: 0.66rem; font-weight: 800; text-transform: uppercase;
+    }
+    .badge-vip {
+      position: absolute; top: 10px; left: 82px; background: rgba(245, 158, 11, 0.25);
+      color: #fbbf24; border: 1px solid var(--gold); padding: 0.2rem 0.45rem; border-radius: 6px; font-size: 0.66rem; font-weight: 800;
+    }
+    .badge-pick {
+      position: absolute; top: 10px; left: 82px; background: rgba(56, 189, 248, 0.2);
+      color: var(--cyan); border: 1px solid var(--cyan); padding: 0.2rem 0.45rem; border-radius: 6px; font-size: 0.66rem; font-weight: 800;
+    }
+    .fav-btn {
+      position: absolute; top: 8px; right: 8px; background: rgba(7, 13, 25, 0.75);
+      border: 1px solid var(--border); color: #fff; width: 28px; height: 28px;
+      border-radius: 999px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .card-content { padding: 0.9rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .card-title { font-weight: 800; margin-bottom: 0.3rem; }
+    .card-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.4; margin-bottom: 0.7rem; }
+    .card-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); }
+    /* Shop */
+    .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.1rem; margin-top: 1rem; }
+    .vip-card {
+      background: var(--card); border: 1px solid rgba(245, 158, 11, 0.45);
+      border-radius: 16px; padding: 1.25rem; position: relative; display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .featured-ribbon {
+      position: absolute; top: 0; right: 0; background: var(--gold); color: #181002;
+      font-size: 0.66rem; font-weight: 900; padding: 0.25rem 0.65rem; border-radius: 0 15px 0 10px;
+    }
+    /* Admin Console */
+    .admin-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 1.25rem; margin-top: 1rem; }
+    @media (max-width: 920px) { .admin-grid { grid-template-columns: 1fr; } }
+    .console-box {
+      background: #050912; border: 1px solid #263859; border-radius: 14px; padding: 1rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; display: flex; flex-direction: column; height: 430px;
+    }
+    .console-log {
+      flex: 1; overflow-y: auto; font-size: 0.8rem; line-height: 1.5; color: #a5f3fc; margin-bottom: 0.75rem;
+    }
+    .console-input-row { display: flex; gap: 0.5rem; }
+    .console-input-row input {
+      flex: 1; background: #0c1426; border: 1px solid #2b4168; color: #38bdf8;
+      padding: 0.55rem 0.75rem; border-radius: 8px; font-family: inherit; outline: none;
+    }
+    .user-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .user-table th, .user-table td { padding: 0.65rem; border-bottom: 1px solid var(--border); text-align: left; }
+    .mini-btn {
+      background: #172744; border: 1px solid #2c4675; color: #e2e8f0;
+      padding: 0.28rem 0.55rem; border-radius: 6px; font-size: 0.74rem; font-weight: 700; cursor: pointer; margin: 0.15rem;
+    }
+    .mini-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+    #gameCanvas { width: 100%; height: 480px; border-radius: 14px; border: 1px solid var(--border); background: #050a14; }
+    .toast {
+      position: fixed; bottom: 18px; right: 18px; background: #111e36; border: 1px solid var(--cyan);
+      color: #fff; padding: 0.7rem 1rem; border-radius: 12px; font-size: 0.84rem; font-weight: 600; z-index: 120; display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- STARTUP SIGN UP / LOGIN MODAL -->
+  <div class="modal-backdrop" id="authModal">
+    <div class="auth-box">
+      <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;">
+        <div class="brand-icon">🐧</div>
+        <div>
+          <div style="font-weight:900;font-size:1.15rem;">PENGUIN GAMELAND</div>
+          <div style="font-size:0.75rem;color:var(--cyan);">Sign in to save coins, VIP passes & daily streaks</div>
+        </div>
+      </div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin" onclick="setAuthMode('login')">Log In</button>
+        <button class="auth-tab" id="tabSignup" onclick="setAuthMode('signup')">Sign Up</button>
+      </div>
+      <form id="authForm">
+        <div class="field">
+          <label>Username</label>
+          <input id="authUser" type="text" required minlength="3" maxlength="20" placeholder="Enter arctic username..." />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input id="authPass" type="password" required minlength="4" placeholder="Enter password..." />
+        </div>
+        <div id="authError" style="color:#f87171;font-size:0.8rem;margin-bottom:0.75rem;display:none;"></div>
+        <button class="btn-primary" type="submit" style="width:100%;" id="authSubmitBtn">Log In to Arcade →</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADMIN PASSWORD GATE MODAL -->
+  <div class="modal-backdrop" id="adminLockModal" style="display:none;">
+    <div class="auth-box">
+      <h3 style="margin:0 0 0.4rem;">🛡️ Admin Security Gate</h3>
+      <p style="margin:0 0 1rem;font-size:0.82rem;color:var(--muted);">Enter the SHA-256 verified admin master password to unlock the command console.</p>
+      <form id="adminLockForm">
+        <div class="field">
+          <label>Master Admin Password</label>
+          <input id="adminPassInput" type="password" required placeholder="••••••••••••" />
+        </div>
+        <div id="adminLockErr" style="color:#f87171;font-size:0.8rem;margin-bottom:0.75rem;display:none;">Invalid Admin Password.</div>
+        <div style="display:flex;gap:0.5rem;">
+          <button type="button" class="nav-btn" style="flex:1;justify-content:center;" onclick="document.getElementById('adminLockModal').style.display='none'">Cancel</button>
+          <button type="submit" class="btn-primary" style="flex:1;">Unlock Console</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="nav-left">
+      <button class="nav-btn" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">☰</button>
+      <div class="brand" onclick="switchView('games')">
+        <div class="brand-icon">🐧</div>
+        <div>
+          <div class="brand-title">GAMELAND</div>
+          <div class="brand-sub">By Pebbles The Penguin</div>
+        </div>
+      </div>
+      <span class="pill-badge" id="gameCountBadge">8 Games</span>
+      <input class="search-box" id="searchInput" type="search" placeholder="Search games..." oninput="renderGames()" />
+    </div>
+    <div class="nav-right">
+      <button class="nav-btn vip" onclick="switchView('shop')">👑 VIP & SHOP</button>
+      <button class="nav-btn admin" onclick="openAdminGate()">🛡️ ADMIN</button>
+      <div class="coin-pill" title="Earn 1 token per game played (Max 20/day)">
+        <span>🪙 <strong id="coinDisplay">0</strong> PTS</span>
+        <span style="color:#64748b;">|</span>
+        <span style="color:#38bdf8;" id="dailyDisplay">0/20 Today</span>
+      </div>
+      <span class="pill-badge" id="userBadge">@Guest</span>
+      <button class="nav-btn" id="panicBtn" title="Disguise tab as Google Docs">👁️ Panic</button>
+      <button class="nav-btn" onclick="logoutUser()">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <aside class="sidebar" id="sidebar">
+      <div class="side-label">Arctic Navigation</div>
+      <div class="pebbles-mini" onclick="pebblesTip()">
+        <div class="pebbles-row">
+          <div class="pebbles-avatar">🐧</div>
+          <div>
+            <div style="font-weight:800;font-size:0.86rem;">Pebbles The Penguin</div>
+            <div style="font-size:0.7rem;color:var(--cyan);">Portal Mascot & Curator</div>
+          </div>
+        </div>
+        <div style="font-size:0.74rem;color:var(--muted);">"Tap my avatar anytime for pro gaming tips & arctic jokes!"</div>
+      </div>
+
+      <div class="side-label">Categories</div>
+      <div class="side-list" id="catList">
+        <button class="side-item active" data-cat="All">🌐 All Games</button>
+        <button class="side-item" data-cat="Survival">⛏️ Survival Games</button>
+        <button class="side-item" data-cat="Rhythm">🎵 Rhythm Games</button>
+        <button class="side-item" data-cat="Racing">🏎️ Racing Games</button>
+        <button class="side-item" data-cat="Arcade">🕹️ Arcade Games</button>
+        <button class="side-item" data-cat="Puzzle">🧩 Puzzle Games</button>
+      </div>
+
+      <div class="side-label">Library & Admin</div>
+      <div class="side-list">
+        <button class="side-item" onclick="switchView('shop')"><span>🛍️ Point Shop & Store</span><span id="sideCoins" style="color:#fbbf24;">0</span></button>
+        <button class="side-item" data-cat="Favorites">❤️ Favorites</button>
+        <button class="side-item" onclick="openAdminGate()">🛡️ Admin Console</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- GAMES VIEW -->
+      <div id="gamesView">
+        <section class="hero">
+          <div>
+            <span class="hero-tag">✦ PEBBLES' PENGUIN ARCADE</span>
+            <h1 style="margin:0 0 0.45rem;">Instant Arctic Gaming, Zero Restrictions. 🐧</h1>
+            <p style="margin:0 0 1rem;color:var(--muted);font-size:0.9rem;max-width:540px;">Welcome to the Igloo Arcade! Earn <strong>1 Coin per game played</strong> (up to <strong>20/day</strong>) to unlock Gold, Platinum, or Diamond Supreme VIP Passes!</p>
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
+              <button class="btn-primary" onclick="launchRandom()">🔀 Slide Into Random Game</button>
+              <span class="btn-secondary">Active Tier: <strong id="heroTier" style="color:#fbbf24;">FREE</strong> (<strong id="heroMult" style="color:var(--cyan);">1.0x</strong>)</span>
+            </div>
+          </div>
+          <div class="pebbles-box">
+            <div class="pebbles-big">🐧</div>
+            <div>
+              <div style="font-weight:800;margin-bottom:0.25rem;">Pebbles The Penguin</div>
+              <div id="pebblesSpeech" style="font-size:0.78rem;color:var(--muted);margin-bottom:0.6rem;">Happiness: <strong id="happyText">85%</strong> 🐟 Feed fish snacks or play a game!</div>
+              <button class="btn-primary" style="padding:0.38rem 0.8rem;font-size:0.78rem;" onclick="feedPebbles()">🐟 Feed Pebbles (2 PTS)</button>
+            </div>
+          </div>
+        </section>
+
+        <div class="filter-bar">
+          <div class="tags" id="tagBar">
+            <button class="tag-btn active" data-tag="All">All</button>
+            <button class="tag-btn" data-tag="#arcade">#arcade</button>
+            <button class="tag-btn" data-tag="#popular">#popular</button>
+            <button class="tag-btn" data-tag="#racing">#racing</button>
+            <button class="tag-btn" data-tag="#skill">#skill</button>
+            <button class="tag-btn" data-tag="#vip">#vip</button>
+          </div>
+          <select id="sortSelect" onchange="renderGames()">
+            <option value="popular">Sort: Most Popular</option>
+            <option value="rating">Sort: Highest Rated</option>
+            <option value="az">Sort: A – Z</option>
+          </select>
+        </div>
+
+        <h2 style="margin:0 0 0.25rem;font-size:1.25rem;">All Unblocked Games</h2>
+        <div style="color:var(--muted);font-size:0.84rem;margin-bottom:1rem;" id="showingCount">Showing 8 available games</div>
+        <div class="grid" id="gameGrid"></div>
+      </div>
+
+      <!-- VIP SHOP VIEW -->
+      <div id="shopView" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;">
+          <div>
+            <h2 style="margin:0 0 0.25rem;">👑 VIP Lounge & Point Shop</h2>
+            <div style="font-size:0.86rem;color:var(--muted);">Play games to earn 1 token per play (max 20/day). Unlock VIP Passes for exclusive games and point multipliers!</div>
+          </div>
+          <button class="btn-primary" onclick="switchView('games')">← Back to Arcade</button>
+        </div>
+        <div class="shop-grid" id="vipShopGrid"></div>
+      </div>
+
+      <!-- ADMIN PANEL & CONSOLE VIEW -->
+      <div id="adminView" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+          <div>
+            <h2 style="margin:0;">🛡️ Pebbles Admin Command Center</h2>
+            <div style="font-size:0.82rem;color:var(--muted);">Manage registered accounts, grant coins, assign VIP passes, or run console commands.</div>
+          </div>
+          <button class="btn-primary" onclick="switchView('games')">← Exit Admin</button>
+        </div>
+
+        <div class="admin-grid">
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem;overflow-x:auto;">
+            <h3 style="margin:0 0 0.75rem;font-size:1rem;">Registered Users</h3>
+            <table class="user-table">
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Coins</th>
+                  <th>VIP Tier</th>
+                  <th>Quick Grant</th>
+                </tr>
+              </thead>
+              <tbody id="adminUserTable"></tbody>
+            </table>
+          </div>
+
+          <div class="console-box">
+            <div style="font-size:0.75rem;color:#64748b;margin-bottom:0.5rem;">ADMIN CONSOLE — Type <strong>/help</strong> for commands</div>
+            <div class="console-log" id="consoleLog"></div>
+            <form class="console-input-row" id="consoleForm">
+              <input id="consoleCmd" type="text" placeholder="/givecoins username 100" autocomplete="off" />
+              <button class="btn-primary" type="submit">Run</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLAYER VIEW -->
+      <div id="playerView" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+          <button class="btn-primary" onclick="switchView('games')">← Back to Igloo Arcade</button>
+          <strong id="activeGameTitle"></strong>
+          <button class="nav-btn" onclick="document.getElementById('gameCanvas').requestFullscreen?.()">⛶ Fullscreen</button>
+        </div>
+        <canvas id="gameCanvas" width="900" height="480"></canvas>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Default Admin Passwords hashed with SHA-256: "admin" and "pebbles2026"
+    // Replace these hashes with your own SHA-256 hex string to set a custom admin password.
+    const ADMIN_HASHES = [
+      "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+      "e5b8875186787918d403976c449770a5968a51782080a9573b2c68f619147c07"
+    ];
+
+    async function sha256(str) {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    const GAMES = [
+      { id: "pebbles-slide", title: "Pebbles Ice Slide", cat: "Arcade", tag: "#arcade", desc: "Dodge falling icebergs on the arctic glacier as Pebbles.", rating: 4.9, plays: "45.1k", color: "linear-gradient(135deg,#0284c7,#38bdf8)", icon: "🐧", pick: true, vip: false, mode: "slide" },
+      { id: "slope-arctic", title: "Arctic Slope", cat: "Racing", tag: "#racing", desc: "Roll down an endless neon slope and avoid red blocks.", rating: 4.9, plays: "35.4k", color: "linear-gradient(135deg,#ca8a04,#facc15)", icon: "🏎️", pick: true, vip: false, mode: "slope" },
+      { id: "geo-dash", title: "Glacier Dash", cat: "Rhythm", tag: "#skill", desc: "Rhythm-based obstacle jumping across arctic spikes.", rating: 4.9, plays: "36.9k", color: "linear-gradient(135deg,#7e22ce,#ec4899)", icon: "🟦", pick: true, vip: false, mode: "dash" },
+      { id: "block-craft", title: "Igloo Craft 2D", cat: "Survival", tag: "#popular", desc: "Mine snow blocks, gather resources, and survive the night.", rating: 4.9, plays: "41.2k", color: "linear-gradient(135deg,#15803d,#4ade80)", icon: "⛏️", pick: true, vip: false, mode: "slide" },
+      { id: "ice-puzzle", title: "Frost Number 2048", cat: "Puzzle", tag: "#popular", desc: "Slide frozen tiles together to reach the 2048 diamond block.", rating: 4.8, plays: "28.0k", color: "linear-gradient(135deg,#0f766e,#2dd4bf)", icon: "🧊", pick: false, vip: false, mode: "slide" },
+      { id: "gold-rush", title: "Royal Aurora Arena", cat: "Arcade", tag: "#vip", desc: "VIP Exclusive: High-speed aurora challenge with bonus coins.", rating: 5.0, plays: "19.8k", color: "linear-gradient(135deg,#b45309,#fbbf24)", icon: "👑", pick: false, vip: true, mode: "slide" },
+      { id: "cyber-drift", title: "Cyber Synth Drift", cat: "Racing", tag: "#vip", desc: "VIP Exclusive: Neon synthwave highway racer with turbo boost.", rating: 4.9, plays: "14.2k", color: "linear-gradient(135deg,#4338ca,#06b6d4)", icon: "⚡", pick: false, vip: true, mode: "slope" },
+      { id: "diamond-arena", title: "Diamond Supreme Run", cat: "Arcade", tag: "#vip", desc: "VIP Exclusive: Crystal speedway for Diamond Supreme members.", rating: 5.0, plays: "11.5k", color: "linear-gradient(135deg,#1d4ed8,#93c5fd)", icon: "💎", pick: false, vip: true, mode: "dash" }
+    ];
+
+    const VIP_TIERS = [
+      { id: "gold", name: "Gold VIP Pass 👑", cost: 100, mult: 1.25, desc: "Unlocks all VIP Exclusive games, 1.25x Points Multiplier & Aurora Gold BGM." },
+      { id: "platinum", name: "Platinum VIP Pass ⚡", cost: 250, mult: 1.5, desc: "Includes Gold + Cyber Synthwave tracks, 1.5x Points Multiplier & Panic Disguise." },
+      { id: "diamond", name: "Diamond Supreme VIP 💎", cost: 500, mult: 2.0, desc: "Supreme status! 2.0x Points Multiplier, Royal Anthem, Diamond Glow & Turbo Launch." }
+    ];
+
+    const todayKey = new Date().toISOString().slice(0, 10);
+    let db = JSON.parse(localStorage.getItem("gameland_users_db") || "{}");
+    let currentUser = sessionStorage.getItem("gameland_session_user") || null;
+    let adminUnlocked = false;
+    let authMode = "login";
+    let currentCat = "All";
+    let currentTag = "All";
+    let animLoop = null;
+    let disguised = false;
+
+    function saveDB() {
+      localStorage.setItem("gameland_users_db", JSON.stringify(db));
+      updateHUD();
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.display = "block";
+      clearTimeout(t._t);
+      t._t = setTimeout(() => t.style.display = "none", 3200);
+    }
+
+    /* AUTH SYSTEM */
+    function setAuthMode(mode) {
+      authMode = mode;
+      document.getElementById("tabLogin").classList.toggle("active", mode === "login");
+      document.getElementById("tabSignup").classList.toggle("active", mode === "signup");
+      document.getElementById("authSubmitBtn").textContent = mode === "login" ? "Log In to Arcade →" : "Create Account & Enter →";
+      document.getElementById("authError").style.display = "none";
+    }
+
+    document.getElementById("authForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const rawUser = document.getElementById("authUser").value.trim().toLowerCase();
+      const passHash = await sha256(document.getElementById("authPass").value);
+      const err = document.getElementById("authError");
+
+      if (authMode === "signup") {
+        if (db[rawUser]) {
+          err.textContent = "Username already taken! Choose another.";
+          err.style.display = "block";
+          return;
+        }
+        db[rawUser] = {
+          username: rawUser,
+          passHash,
+          coins: 5,
+          dailyDate: todayKey,
+          dailyEarned: 0,
+          vip: "none",
+          favorites: [],
+          happiness: 85,
+          banned: false
+        };
+        saveDB();
+        showToast(`🎉 Welcome ${rawUser}! You received 5 starter coins.`);
+      } else {
+        if (!db[rawUser] || db[rawUser].passHash !== passHash) {
+          err.textContent = "Invalid username or password.";
+          err.style.display = "block";
+          return;
+        }
+        if (db[rawUser].banned) {
+          err.textContent = "This account has been suspended by an administrator.";
+          err.style.display = "block";
+          return;
+        }
+      }
+
+      currentUser = rawUser;
+      sessionStorage.setItem("gameland_session_user", rawUser);
+      document.getElementById("authModal").style.display = "none";
+      ensureDailyReset();
+      updateHUD();
+      renderGames();
+    };
+
+    function logoutUser() {
+      sessionStorage.removeItem("gameland_session_user");
+      currentUser = null;
+      adminUnlocked = false;
+      document.getElementById("authModal").style.display = "flex";
+    }
+
+    function ensureDailyReset() {
+      if (!currentUser || !db[currentUser]) return;
+      if (db[currentUser].dailyDate !== todayKey) {
+        db[currentUser].dailyDate = todayKey;
+        db[currentUser].dailyEarned = 0;
+        saveDB();
+      }
+    }
+
+    function getUserMultiplier(u) {
+      if (!u) return 1.0;
+      if (u.vip === "diamond") return 2.0;
+      if (u.vip === "platinum") return 1.5;
+      if (u.vip === "gold") return 1.25;
+      return 1.0;
+    }
+
+    function updateHUD() {
+      if (!currentUser || !db[currentUser]) return;
+      const u = db[currentUser];
+      document.getElementById("coinDisplay").textContent = Math.floor(u.coins);
+      document.getElementById("sideCoins").textContent = Math.floor(u.coins);
+      document.getElementById("dailyDisplay").textContent = `${u.dailyEarned}/20 Today`;
+      document.getElementById("userBadge").textContent = `@${u.username} (${u.vip.toUpperCase()})`;
+      document.getElementById("heroTier").textContent = u.vip.toUpperCase();
+      document.getElementById("heroMult").textContent = `${getUserMultiplier(u)}x`;
+      document.getElementById("happyText").textContent = `${u.happiness || 85}%`;
+    }
+
+    /* ADMIN GATE & CONSOLE */
+    function openAdminGate() {
+      if (adminUnlocked) {
+        switchView("admin");
+        return;
+      }
+      document.getElementById("adminLockErr").style.display = "none";
+      document.getElementById("adminPassInput").value = "";
+      document.getElementById("adminLockModal").style.display = "flex";
+    }
+
+    document.getElementById("adminLockForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const enteredHash = await sha256(document.getElementById("adminPassInput").value);
+      if (ADMIN_HASHES.includes(enteredHash)) {
+        adminUnlocked = true;
+        document.getElementById("adminLockModal").style.display = "none";
+        logConsole("✓ Admin session authenticated via SHA-256.");
+        switchView("admin");
+      } else {
+        document.getElementById("adminLockErr").style.display = "block";
+      }
+    };
+
+    function logConsole(line) {
+      const box = document.getElementById("consoleLog");
+      const div = document.createElement("div");
+      div.textContent = `[${new Date().toLocaleTimeString()}] ${line}`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    document.getElementById("consoleForm").onsubmit = (e) => {
+      e.preventDefault();
+      if (!adminUnlocked) return;
+      const raw = document.getElementById("consoleCmd").value.trim();
+      document.getElementById("consoleCmd").value = "";
+      if (!raw) return;
+      logConsole(`> ${raw}`);
+      const parts = raw.split(/\s+/);
+      const cmd = parts[0].toLowerCase();
+      const target = (parts[1] || "").toLowerCase();
+
+      if (cmd === "/help") {
+        logConsole("Commands: /givecoins <user> <amt> | /givevip <user> <gold|platinum|diamond|none> | /resetdaily <user> | /ban <user> | /unban <user> | /list");
+      } else if (cmd === "/list") {
+        const names = Object.keys(db);
+        logConsole(names.length ? `Users (${names.length}): ${names.join(", ")}` : "No registered users.");
+      } else if (cmd === "/givecoins") {
+        const amt = Number(parts[2]);
+        if (!db[target] || isNaN(amt)) return logConsole("Error: Usage /givecoins <username> <amount>");
+        db[target].coins = Math.max(0, db[target].coins + amt);
+        saveDB(); renderAdminUsers();
+        logConsole(`Granted ${amt} coins to @${target}. New balance: ${db[target].coins}`);
+      } else if (cmd === "/givevip") {
+        const tier = (parts[2] || "").toLowerCase();
+        if (!db[target] || !["none", "gold", "platinum", "diamond"].includes(tier)) {
+          return logConsole("Error: Usage /givevip <username> <gold|platinum|diamond|none>");
+        }
+        db[target].vip = tier;
+        saveDB(); renderAdminUsers(); renderGames();
+        logConsole(`Set @${target} VIP tier to ${tier.toUpperCase()}.`);
+      } else if (cmd === "/resetdaily") {
+        if (!db[target]) return logConsole("Error: User not found.");
+        db[target].dailyEarned = 0;
+        saveDB();
+        logConsole(`Reset daily token counter for @${target}.`);
+      } else if (cmd === "/ban" || cmd === "/unban") {
+        if (!db[target]) return logConsole("Error: User not found.");
+        db[target].banned = cmd === "/ban";
+        saveDB(); renderAdminUsers();
+        logConsole(`${cmd === "/ban" ? "Banned" : "Unbanned"} @${target}.`);
+      } else {
+        logConsole("Unknown command. Type /help for available commands.");
+      }
+    };
+
+    function renderAdminUsers() {
+      const tbody = document.getElementById("adminUserTable");
+      tbody.innerHTML = "";
+      Object.values(db).forEach(u => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>@${u.username}</strong> ${u.banned ? '<span style="color:#f87171;">[BANNED]</span>' : ''}</td>
+          <td>🪙 ${Math.floor(u.coins)}</td>
+          <td><span class="pill-badge">${u.vip.toUpperCase()}</span></td>
+          <td>
+            <button class="mini-btn" onclick="quickGrant('${u.username}', 50)">+50 Coins</button>
+            <button class="mini-btn" onclick="quickVIP('${u.username}', 'gold')">Gold</button>
+            <button class="mini-btn" onclick="quickVIP('${u.username}', 'platinum')">Platinum</button>
+            <button class="mini-btn" onclick="quickVIP('${u.username}', 'diamond')">Diamond</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function quickGrant(username, amt) {
+      if (!adminUnlocked || !db[username]) return;
+      db[username].coins += amt;
+      saveDB(); renderAdminUsers();
+      logConsole(`Quick-granted +${amt} coins to @${username}.`);
+    }
+
+    function quickVIP(username, tier) {
+      if (!adminUnlocked || !db[username]) return;
+      db[username].vip = tier;
+      saveDB(); renderAdminUsers(); renderGames();
+      logConsole(`Quick-assigned ${tier.toUpperCase()} VIP to @${username}.`);
+    }
+
+    /* GAMES & SHOP */
+    function renderGames() {
+      const q = document.getElementById("searchInput").value.toLowerCase();
+      const sort = document.getElementById("sortSelect").value;
+      const u = db[currentUser];
+      const hasVIP = u && u.vip !== "none";
+      const favs = (u && u.favorites) || [];
+
+      let list = GAMES.filter(g => {
+        const matchCat = currentCat === "All" || (currentCat === "Favorites" ? favs.includes(g.id) : g.cat === currentCat);
+        const matchTag = currentTag === "All" || g.tag === currentTag;
+        const matchQ = g.title.toLowerCase().includes(q) || g.desc.toLowerCase().includes(q);
+        return matchCat && matchTag && matchQ;
+      });
+      if (sort === "az") list.sort((a, b) => a.title.localeCompare(b.title));
+      if (sort === "rating") list.sort((a, b) => b.rating - a.rating);
+
+      document.getElementById("showingCount").textContent = `Showing ${list.length} available games`;
+      const grid = document.getElementById("gameGrid");
+      grid.innerHTML = "";
+      list.forEach(g => {
+        const locked = g.vip && !hasVIP;
+        const isFav = favs.includes(g.id);
+        const card = document.createElement("div");
+        card.className = "game-card";
+        card.innerHTML = `
+          <div class="card-banner" style="background:${g.color};">
+            <span class="badge-top-left">${g.cat}</span>
+            ${g.vip ? `<span class="badge-vip">👑 VIP</span>` : (g.pick ? `<span class="badge-pick">✦ Pick</span>` : "")}
+            <button class="fav-btn" data-fav="${g.id}">${isFav ? "❤️" : "🤍"}</button>
+            <span>${locked ? "🔒" : g.icon}</span>
+          </div>
+          <div class="card-content">
+            <div>
+              <div class="card-title">${g.title}</div>
+              <div class="card-desc">${g.desc}</div>
+            </div>
+            <div class="card-meta">
+              <span>⭐ ${g.rating}</span>
+              <span>👁️ ${g.plays} plays</span>
+            </div>
+          </div>`;
+        card.onclick = (e) => {
+          if (e.target.dataset.fav) {
+            e.stopPropagation();
+            toggleFav(g.id);
+            return;
+          }
+          if (locked) {
+            showToast("👑 Unlock a VIP Pass in the Shop or ask an Admin!");
+            switchView("shop");
+            return;
+          }
+          launchGame(g);
+        };
+        grid.appendChild(card);
+      });
+    }
+
+    function toggleFav(id) {
+      if (!currentUser || !db[currentUser]) return;
+      const u = db[currentUser];
+      u.favorites = u.favorites || [];
+      if (u.favorites.includes(id)) u.favorites = u.favorites.filter(x => x !== id);
+      else u.favorites.push(id);
+      saveDB(); renderGames();
+    }
+
+    function renderShop() {
+      const u = db[currentUser];
+      const grid = document.getElementById("vipShopGrid");
+      grid.innerHTML = "";
+      VIP_TIERS.forEach(tier => {
+        const owned = u && u.vip === tier.id;
+        const card = document.createElement("div");
+        card.className = "vip-card";
+        card.innerHTML = `
+          <div class="featured-ribbon">FEATURED</div>
+          <div>
+            <h3 style="margin:0 0 0.4rem;">${tier.name}</h3>
+            <p style="font-size:0.84rem;color:var(--muted);">${tier.desc}</p>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;">
+            <strong style="color:#fbbf24;">🪙 ${tier.cost} PTS</strong>
+            <button class="btn-primary">${owned ? "✓ Active" : "Unlock"}</button>
+          </div>`;
+        card.querySelector("button").onclick = () => {
+          if (owned) return;
+          if (u.coins < tier.cost) return showToast("Not enough coins! Play games (1/game, 20/day max).");
+          u.coins -= tier.cost;
+          u.vip = tier.id;
+          saveDB(); renderShop(); renderGames();
+          showToast(`🎉 Unlocked ${tier.name}!`);
+        };
+        grid.appendChild(card);
+      });
+    }
+
+    function launchGame(g) {
+      ensureDailyReset();
+      const u = db[currentUser];
+      if (u.dailyEarned < 20) {
+        const mult = getUserMultiplier(u);
+        u.coins += 1 * mult;
+        u.dailyEarned += 1;
+        saveDB();
+        showToast(`🪙 +${1 * mult} Token earned! (${u.dailyEarned}/20 today)`);
+      } else {
+        showToast("Daily limit reached (20/20 tokens today).");
+      }
+      switchView("player");
+      document.getElementById("activeGameTitle").textContent = `${g.icon} ${g.title}`;
+      startMiniGame(g.mode);
+    }
+
+    function launchRandom() {
+      const u = db[currentUser];
+      const hasVIP = u && u.vip !== "none";
+      const pool = GAMES.filter(g => !g.vip || hasVIP);
+      launchGame(pool[Math.floor(Math.random() * pool.length)]);
+    }
+
+    function startMiniGame(mode) {
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
+      let px = 420, py = 360, vy = 0, score = 0, obs = [], keys = {};
+      window.onkeydown = e => keys[e.key] = true;
+      window.onkeyup = e => keys[e.key] = false;
+      function loop() {
+        ctx.fillStyle = "#071122";
+        ctx.fillRect(0, 0, 900, 480);
+        if (mode === "dash") {
+          if ((keys[" "] || keys["ArrowUp"]) && py >= 360) vy = -13;
+          py += vy; vy += 0.75;
+          if (py > 360) { py = 360; vy = 0; }
+          if (Math.random() < 0.025) obs.push({ x: 900, y: 375 });
+          ctx.fillStyle = "#38bdf8";
+          ctx.fillRect(0, 405, 900, 75);
+          ctx.fillStyle = "#facc15";
+          ctx.fillRect(140, py, 40, 40);
+          ctx.fillStyle = "#f43f5e";
+          obs.forEach((o, i) => {
+            o.x -= 6;
+            ctx.fillRect(o.x, o.y, 26, 30);
+            if (o.x < 180 && o.x + 26 > 140 && py + 40 > o.y) { score = 0; obs = []; }
+            if (o.x < -30) { obs.splice(i, 1); score++; }
+          });
+        } else {
+          if (keys["ArrowLeft"] || keys["a"]) px = Math.max(20, px - 8);
+          if (keys["ArrowRight"] || keys["d"]) px = Math.min(840, px + 8);
+          if (Math.random() < 0.05) obs.push({ x: Math.random() * 860, y: -20 });
+          ctx.fillStyle = "#bae6fd";
+          ctx.fillRect(0, 430, 900, 50);
+          ctx.font = "38px serif";
+          ctx.fillText(mode === "slope" ? "🟡" : "🐧", px, 420);
+          obs.forEach((o, i) => {
+            o.y += 5;
+            ctx.fillText(mode === "slope" ? "🟥" : "🧊", o.x, o.y);
+            if (o.y > 380 && o.y < 430 && Math.abs(o.x - px) < 32) { score = 0; obs = []; }
+            if (o.y > 480) { obs.splice(i, 1); score++; }
+          });
+        }
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 20px sans-serif";
+        ctx.fillText(`Score: ${score}  |  Move: ← → / A & D / Space`, 24, 36);
+        animLoop = requestAnimationFrame(loop);
+      }
+      cancelAnimationFrame(animLoop);
+      loop();
+    }
+
+    function pebblesTip() {
+      const tips = [
+        "Tip: Play up to 20 games a day to max out your daily 20 tokens!",
+        "Joke: Why don't penguins like talking to strangers? They have trouble breaking the ice!",
+        "Pro Move: Save 100 PTS for the Gold VIP Pass to unlock a 1.25x token multiplier!"
+      ];
+      const pick = tips[Math.floor(Math.random() * tips.length)];
+      document.getElementById("pebblesSpeech").textContent = pick;
+      showToast("🐧 " + pick);
+    }
+
+    function feedPebbles() {
+      if (!currentUser || !db[currentUser]) return;
+      const u = db[currentUser];
+      if (u.coins < 2) return showToast("You need 2 PTS to buy a fish snack for Pebbles!");
+      u.coins -= 2;
+      u.happiness = Math.min(100, (u.happiness || 85) + 5);
+      saveDB();
+      showToast("🐟 Yum! Pebbles' happiness increased to " + u.happiness + "%!");
+    }
+
+    function switchView(v) {
+      cancelAnimationFrame(animLoop);
+      document.getElementById("gamesView").style.display = v === "games" ? "block" : "none";
+      document.getElementById("shopView").style.display = v === "shop" ? "block" : "none";
+      document.getElementById("adminView").style.display = v === "admin" ? "block" : "none";
+      document.getElementById("playerView").style.display = v === "player" ? "block" : "none";
+      if (v === "shop") renderShop();
+      if (v === "admin") renderAdminUsers();
+      if (v === "games") renderGames();
+    }
+
+    document.getElementById("panicBtn").onclick = () => {
+      disguised = !disguised;
+      document.title = disguised ? "Untitled document - Google Docs" : "GAMELAND — By Pebbles The Penguin";
+      showToast(disguised ? "Panic Disguise ON: Tab renamed to Google Docs" : "Panic Disguise OFF");
+    };
+
+    document.getElementById("catList").onclick = (e) => {
+      const btn = e.target.closest(".side-item");
+      if (!btn || !btn.dataset.cat) return;
+      document.querySelectorAll("#catList .side-item").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentCat = btn.dataset.cat;
+      switchView("games");
+    };
+
+    document.getElementById("tagBar").onclick = (e) => {
+      if (!e.target.classList.contains("tag-btn")) return;
+      document.querySelectorAll(".tag-btn").forEach(b => b.classList.remove("active"));
+      e.target.classList.add("active");
+      currentTag = e.target.dataset.tag;
+      renderGames();
+    };
+
+    if (currentUser && db[currentUser] && !db[currentUser].banned) {
+      document.getElementById("authModal").style.display = "none";
+      ensureDailyReset();
+      updateHUD();
+      renderGames();
+    }
+  </script>
+</body>
+</html>
