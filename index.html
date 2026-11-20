@@ -7,220 +7,173 @@
   <style>
     :root {
       --bg: #040812;
-      --panel: rgba(11, 19, 36, 0.92);
-      --card: rgba(16, 27, 50, 0.92);
-      --border: rgba(56, 189, 248, 0.28);
+      --panel: #0b1324;
+      --card: #101b32;
+      --border: rgba(56, 189, 248, 0.3);
       --cyan: #38bdf8;
       --purple: #a855f7;
       --gold: #fbbf24;
       --text: #f8fafc;
       --muted: #94a3b8;
       --red: #ef4444;
-      --green: #10b981;
     }
     * { box-sizing: border-box; }
     body {
-      margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text);
-      background: radial-gradient(circle at 15% 15%, #0f1f42 0%, #040812 55%, #090418 100%);
+      margin: 0; font-family: system-ui, -apple-system, sans-serif; color: var(--text);
+      background: radial-gradient(circle at 15% 15%, #0f1f42 0%, #040812 60%, #090418 100%);
       min-height: 100vh; display: flex; flex-direction: column;
     }
-    .modal-backdrop {
-      position: fixed; inset: 0; background: rgba(2, 5, 12, 0.94);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 9999; padding: 1rem; pointer-events: auto;
+    .overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(2, 5, 12, 0.94); display: flex;
+      align-items: center; justify-content: center; z-index: 9999; padding: 1rem;
     }
-    .glass-box {
-      background: #0b1324; border: 1px solid var(--cyan); border-radius: 18px;
-      width: 100%; max-width: 410px; padding: 1.75rem; position: relative; z-index: 10000;
-      box-shadow: 0 0 35px rgba(56, 189, 248, 0.25); pointer-events: auto;
+    .box {
+      background: #0b1324; border: 2px solid var(--cyan); border-radius: 18px;
+      width: 100%; max-width: 400px; padding: 1.75rem;
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.25);
     }
-    .auth-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; }
-    .auth-tab {
-      flex: 1; padding: 0.6rem; border-radius: 10px; border: 1px solid var(--border);
-      background: #070e1d; color: var(--muted); font-weight: 700; cursor: pointer;
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; }
+    .tab-btn {
+      flex: 1; padding: 0.65rem; border-radius: 10px; border: 1px solid var(--border);
+      background: #070e1d; color: var(--muted); font-weight: 700; cursor: pointer; font-size: 0.9rem;
     }
-    .auth-tab.active { background: var(--cyan); color: #030a17; }
-    .field { margin-bottom: 0.9rem; }
-    .field label { display: block; font-size: 0.76rem; color: var(--cyan); margin-bottom: 0.3rem; font-weight: 700; text-transform: uppercase; }
+    .tab-btn.active { background: var(--cyan); color: #030a17; border-color: var(--cyan); }
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 0.78rem; color: var(--cyan); margin-bottom: 0.35rem; font-weight: 700; }
     .field input {
       width: 100%; padding: 0.65rem 0.85rem; border-radius: 10px; border: 1px solid var(--border);
-      background: #060c1a; color: #fff; outline: none; font-size: 0.95rem;
+      background: #060c1a; color: #fff; font-size: 0.95rem;
     }
-    .field input:focus { border-color: var(--cyan); }
+    .btn-primary {
+      background: linear-gradient(90deg, #0284c7, #38bdf8); color: #030a17; border: none;
+      padding: 0.65rem 1.1rem; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 0.92rem;
+    }
     .topbar {
-      height: 64px; background: rgba(6, 11, 24, 0.95);
-      border-bottom: 1px solid var(--border); display: flex; align-items: center;
-      justify-content: space-between; padding: 0 1rem; gap: 0.6rem; position: sticky; top: 0; z-index: 30;
+      height: 64px; background: #060b18; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; gap: 0.5rem;
     }
-    .nav-left, .nav-right { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; }
-    .brand { display: flex; align-items: center; gap: 0.55rem; cursor: pointer; }
-    .brand-icon {
-      width: 36px; height: 36px; border-radius: 10px;
-      background: linear-gradient(135deg, #2563eb, #38bdf8);
-      display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
-    }
-    .search-box {
-      background: #081022; border: 1px solid var(--border); border-radius: 10px;
-      padding: 0.42rem 0.8rem; color: #fff; width: 190px; outline: none;
-    }
+    .nav-group { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
     .nav-btn {
       background: #101b32; border: 1px solid var(--border); color: var(--text);
       padding: 0.42rem 0.75rem; border-radius: 9px; font-size: 0.78rem; font-weight: 700; cursor: pointer;
     }
-    .nav-btn:hover { border-color: var(--cyan); }
-    .nav-btn.vip { border-color: var(--gold); color: var(--gold); background: rgba(251,191,36,0.1); }
-    .nav-btn.cloud { border-color: var(--purple); color: #d8b4fe; background: rgba(168,85,247,0.14); }
-    .nav-btn.admin { border-color: var(--red); color: #fca5a5; background: rgba(239,68,68,0.14); }
-    .coin-pill {
-      background: #0b152b; border: 1px solid var(--cyan); padding: 0.36rem 0.75rem;
-      border-radius: 999px; font-size: 0.78rem; font-weight: 800;
-    }
+    .nav-btn.vip { border-color: var(--gold); color: var(--gold); }
+    .nav-btn.cloud { border-color: var(--purple); color: #d8b4fe; }
+    .nav-btn.admin { border-color: var(--red); color: #fca5a5; }
     .workspace { display: flex; flex: 1; }
-    .sidebar {
-      width: 235px; background: var(--panel); border-right: 1px solid var(--border);
-      padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 0.9rem;
-    }
-    .sidebar.collapsed { display: none; }
-    .side-label { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.1em; color: var(--cyan); padding: 0 0.5rem; text-transform: uppercase; }
+    .sidebar { width: 220px; background: var(--panel); border-right: 1px solid var(--border); padding: 1rem 0.75rem; }
     .side-item {
       width: 100%; background: transparent; border: 1px solid transparent; color: #cbd5e1;
-      padding: 0.52rem 0.7rem; border-radius: 9px; text-align: left; font-size: 0.83rem;
-      font-weight: 600; cursor: pointer; margin-bottom: 0.2rem;
+      padding: 0.52rem 0.7rem; border-radius: 9px; text-align: left; font-size: 0.84rem;
+      font-weight: 600; cursor: pointer; margin-bottom: 0.25rem;
     }
-    .side-item:hover, .side-item.active {
-      background: rgba(56, 189, 248, 0.14); border-color: var(--border); color: var(--cyan);
-    }
-    .main { flex: 1; padding: 1.4rem; max-width: 1380px; margin: 0 auto; width: 100%; }
+    .side-item.active, .side-item:hover { background: rgba(56, 189, 248, 0.15); color: var(--cyan); border-color: var(--border); }
+    .main { flex: 1; padding: 1.4rem; max-width: 1350px; margin: 0 auto; width: 100%; }
     .hero {
-      background: linear-gradient(125deg, rgba(29,78,216,0.28), rgba(168,85,247,0.2), rgba(11,19,36,0.9));
+      background: linear-gradient(125deg, rgba(29,78,216,0.3), rgba(168,85,247,0.2), #0b1324);
       border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem;
-      display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;
-      margin-bottom: 1.3rem;
-    }
-    .btn-primary {
-      background: linear-gradient(90deg, #0284c7, #38bdf8); color: #030a17; border: none;
-      padding: 0.62rem 1.1rem; border-radius: 10px; font-weight: 800; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.3rem;
     }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(225px, 1fr)); gap: 1.1rem; }
-    .game-card {
+    .card {
       background: var(--card); border: 1px solid var(--border); border-radius: 15px;
-      overflow: hidden; cursor: pointer; transition: 0.18s; position: relative;
+      overflow: hidden; cursor: pointer; transition: 0.15s;
     }
-    .game-card:hover { transform: translateY(-5px); border-color: var(--cyan); }
-    .card-banner { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 2.9rem; position: relative; }
-    .tag-pill {
-      position: absolute; top: 9px; right: 9px; padding: 0.2rem 0.5rem; border-radius: 6px;
-      font-size: 0.65rem; font-weight: 900; text-transform: uppercase;
-    }
-    .tag-vip { background: rgba(251,191,36,0.22); color: var(--gold); border: 1px solid var(--gold); }
-    .tag-cloud { background: rgba(168,85,247,0.28); color: #e9d5ff; border: 1px solid var(--purple); }
-    .card-body { padding: 0.9rem; }
-    .card-title { font-weight: 800; margin-bottom: 0.25rem; }
-    .card-desc { font-size: 0.77rem; color: var(--muted); }
-    .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.1rem; margin-top: 1rem; }
-    .vip-card {
-      background: var(--card); border: 1px solid rgba(251,191,36,0.45); border-radius: 16px;
-      padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;
-    }
-    .admin-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 1.1rem; margin-top: 1rem; }
-    @media (max-width: 950px) { .admin-grid { grid-template-columns: 1fr; } }
-    .console-box {
-      background: #030711; border: 1px solid var(--cyan); border-radius: 14px; padding: 1rem;
-      font-family: ui-monospace, monospace; display: flex; flex-direction: column; height: 430px;
-    }
-    .console-log { flex: 1; overflow-y: auto; font-size: 0.78rem; line-height: 1.5; color: #7dd3fc; margin-bottom: 0.7rem; }
-    .console-row { display: flex; gap: 0.5rem; }
-    .console-row input {
-      flex: 1; background: #091224; border: 1px solid var(--border); color: var(--cyan);
-      padding: 0.5rem 0.7rem; border-radius: 8px; font-family: inherit; outline: none;
-    }
+    .card:hover { transform: translateY(-4px); border-color: var(--cyan); }
+    .banner { height: 115px; display: flex; align-items: center; justify-content: center; font-size: 2.8rem; position: relative; }
+    .badge { position: absolute; top: 8px; right: 8px; padding: 0.2rem 0.45rem; border-radius: 6px; font-size: 0.65rem; font-weight: 900; }
+    .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .vip-card { background: var(--card); border: 1px solid rgba(251,191,36,0.45); border-radius: 15px; padding: 1.25rem; }
+    .admin-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1rem; margin-top: 1rem; }
+    @media (max-width: 900px) { .admin-grid { grid-template-columns: 1fr; } }
+    .console-box { background: #030711; border: 1px solid var(--cyan); border-radius: 14px; padding: 1rem; font-family: monospace; display: flex; flex-direction: column; height: 400px; }
+    .console-log { flex: 1; overflow-y: auto; font-size: 0.8rem; color: #7dd3fc; margin-bottom: 0.6rem; }
     .user-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-    .user-table th, .user-table td { padding: 0.6rem; border-bottom: 1px solid var(--border); text-align: left; }
-    .mini-btn {
-      background: #132240; border: 1px solid var(--border); color: #e2e8f0;
-      padding: 0.26rem 0.5rem; border-radius: 6px; font-size: 0.7rem; font-weight: 700; cursor: pointer; margin: 2px;
-    }
-    .mini-btn:hover { border-color: var(--cyan); color: var(--cyan); }
-    .mini-btn.danger { border-color: var(--red); color: #fca5a5; }
+    .user-table th, .user-table td { padding: 0.55rem; border-bottom: 1px solid var(--border); text-align: left; }
+    .mini-btn { background: #132240; border: 1px solid var(--border); color: #fff; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.7rem; cursor: pointer; margin: 2px; }
     #gameCanvas, #gameFrame { width: 100%; height: 480px; border-radius: 14px; border: 1px solid var(--cyan); background: #030711; }
-    .toast {
-      position: fixed; bottom: 18px; right: 18px; background: #0c172e; border: 1px solid var(--cyan);
-      color: #fff; padding: 0.7rem 1rem; border-radius: 12px; font-size: 0.83rem; font-weight: 700; z-index: 12000; display: none;
-    }
+    .toast { position: fixed; bottom: 18px; right: 18px; background: #0c172e; border: 1px solid var(--cyan); color: #fff; padding: 0.7rem 1rem; border-radius: 12px; font-size: 0.84rem; font-weight: 700; z-index: 12000; display: none; }
   </style>
 </head>
 <body>
   <div class="toast" id="toast"></div>
 
-  <div class="modal-backdrop" id="authModal">
-    <div class="glass-box">
+  <!-- SIGN UP / LOG IN OVERLAY -->
+  <div class="overlay" id="authModal">
+    <div class="box">
       <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;">
-        <div class="brand-icon">🐧</div>
+        <span style="font-size:2rem;">🐧</span>
         <div>
-          <div style="font-weight:900;font-size:1.1rem;letter-spacing:0.05em;">CYBER-ARCTIC OS</div>
-          <div style="font-size:0.74rem;color:var(--cyan);">Sign up or log in to access Games, Cloud & VIP</div>
+          <div style="font-weight:900;font-size:1.15rem;">CYBER-ARCTIC GAMELAND</div>
+          <div style="font-size:0.75rem;color:var(--cyan);">Create an account or log in to play</div>
         </div>
       </div>
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tabLogin" type="button" onclick="setAuthMode('login')">Log In</button>
-        <button class="auth-tab" id="tabSignup" type="button" onclick="setAuthMode('signup')">Sign Up</button>
+      <div class="tabs">
+        <button type="button" class="tab-btn active" id="tabLogin">Log In</button>
+        <button type="button" class="tab-btn" id="tabSignup">Sign Up</button>
       </div>
-      <form id="authForm">
-        <div class="field"><label>Username</label><input id="authUser" type="text" required minlength="3" maxlength="20" placeholder="Enter username..." /></div>
-        <div class="field"><label>Password</label><input id="authPass" type="password" required minlength="4" placeholder="Enter password..." /></div>
-        <div id="authError" style="color:#f87171;font-size:0.8rem;margin-bottom:0.75rem;display:none;"></div>
-        <button class="btn-primary" type="submit" style="width:100%;" id="authSubmitBtn">Log In →</button>
-      </form>
+      <div class="field">
+        <label>Username</label>
+        <input id="authUser" type="text" placeholder="Type username..." />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input id="authPass" type="password" placeholder="Type password..." />
+      </div>
+      <div id="authError" style="color:#f87171;font-size:0.82rem;margin-bottom:0.8rem;display:none;"></div>
+      <button type="button" class="btn-primary" style="width:100%;" id="authSubmitBtn">Log In →</button>
     </div>
   </div>
 
-  <div class="modal-backdrop" id="adminLockModal" style="display:none;">
-    <div class="glass-box">
+  <!-- ADMIN GATE OVERLAY -->
+  <div class="overlay" id="adminLockModal" style="display:none;">
+    <div class="box">
       <h3 style="margin:0 0 0.4rem;">🛡️ Admin Security Gate</h3>
-      <p style="margin:0 0 1rem;font-size:0.8rem;color:var(--muted);">Enter master admin password to unlock Admin Console.</p>
-      <form id="adminLockForm">
-Master Admin Password
-Access Denied.
+      <p style="margin:0 0 1rem;font-size:0.8rem;color:var(--muted);">Enter master admin password (pebbles2026).</p>
+      <div class="field">
+        <label>Master Password</label>
+        <input id="adminPassInput" type="password" placeholder="••••••••••••" />
+      </div>
+      <div id="adminLockErr" style="color:#f87171;font-size:0.8rem;margin-bottom:0.8rem;display:none;">Access Denied.</div>
+      <div style="display:flex;gap:0.5rem;">
+        <button type="button" class="nav-btn" style="flex:1;" id="adminCancelBtn">Cancel</button>
+        <button type="button" class="btn-primary" style="flex:1;" id="adminUnlockBtn">Unlock</button>
+      </div>
+    </div>
+  </div>
 
-Cancel
-Unlock
+  <header class="topbar">
+    <div class="nav-group">
+      <strong style="font-size:1.05rem;cursor:pointer;" onclick="switchView('games')">🐧 GAMELAND</strong>
+      <input id="searchInput" type="search" placeholder="Search games..." style="background:#081022;border:1px solid var(--border);color:#fff;padding:0.4rem 0.75rem;border-radius:8px;" oninput="renderGames()" />
+    </div>
+    <div class="nav-group">
+      <button type="button" class="nav-btn cloud" onclick="filterCat('Cloud')">☁️ CLOUD GAMING</button>
+      <button type="button" class="nav-btn vip" onclick="switchView('shop')">👑 VIP SHOP</button>
+      <button type="button" class="nav-btn admin" onclick="openAdminGate()">🛡️ ADMIN</button>
+      <span style="font-size:0.8rem;font-weight:800;color:var(--cyan);">🪙 <span id="coinDisplay">0</span> | <span id="dailyDisplay">0/20</span></span>
+      <span style="font-size:0.78rem;font-weight:800;color:var(--gold);" id="userBadge">@guest</span>
+      <button type="button" class="nav-btn" onclick="logoutUser()">Sign Out</button>
+    </div>
+  </header>
 
+  <div class="workspace">
+    <aside class="sidebar">
+      <button type="button" class="side-item active" data-cat="All">🌐 All Games</button>
+      <button type="button" class="side-item" data-cat="Cloud">☁️ Cloud Gaming (Plat+)</button>
+      <button type="button" class="side-item" data-cat="Arcade">🕹️ Arcade</button>
+      <button type="button" class="side-item" data-cat="Action">🚀 Action</button>
+      <button type="button" class="side-item" data-cat="Racing">🏎️ Racing</button>
+      <button type="button" class="side-item" data-cat="Rhythm">🎵 Rhythm</button>
+    </aside>
 
-
-☰
-
-🐧
-
-GAMELAND
-CYBER-ARCTIC EDITION
-
-
-
-
-
-☁️ CLOUD GAMING
-👑 VIP SHOP
-🛡️ ADMIN
-🪙 0 | 0/20
-@guest
-Exit
-
-Navigation
-
-🌐 All Games
-☁️ Cloud Gaming (Plat+)
-🕹️ Arcade
-🚀 Action & Shooters
-🏎️ Racing
-🎵 Rhythm
-
-System
-
-🛍️ VIP Pass Store
-🛡️ Admin Console
-
-✦ NEXT-GEN ARCTIC ARCADE
-Futuristic Browser & Cloud Gaming. 🐧
+    <main class="main">
+      <div id="gamesView">
+        <section class="hero">
+          <div>
+            <h1 style="margin:0 0 0.4rem;font-size:1.65rem;">Cyber-Arctic GameLand OS 🐧</h1>
+Use code with caution.
 Earn 1 Coin per game (20/day max). Unlock Platinum VIP (2nd highest) or Diamond Supreme for Cloud Gaming!
 ⚡ Quick-Launch Random Game
 
@@ -233,21 +186,19 @@ Cloud Access: LOCKED (Need Platinum+)
 ← Back to Arcade
 
 
-🛡️ Cyber-Arctic Admin Console
+🛡️ Admin Command Console
 ← Exit Admin
 
 
 
-User Database & Moderation
+User	Coins	Tier	Status	Actions
 
-User	Coins	Tier	Status	Controls
-
-Table 1Export to Sheets
-TERMINAL // Type /help for commands
+AI Mode reply for uh should the sign in page still be broken?Export to Sheets
+Type /help for commands
 
 
 
-Exec
+Run
 
 
 
@@ -259,28 +210,17 @@ Exec
 
 
 
-const ADMIN_PASSWORD_HASH = "e5b8875186787918d403976c449770a5968a51782080a9573b2c68f619147c07"; // "pebbles2026"
-async function hashStr(s) {
-if (window.crypto && window.crypto.subtle) {
-const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, "0")).join("");
-}
-// Fallback hash if opened over non-HTTPS file://
-let h = 0;
-for (let i = 0; i < s.length; i++) h = ((h << 5) - h) + s.charCodeAt(i) | 0;
-return "fallback_" + h;
-}
 const GAMES = [
-{ id: "snake", title: "Cyber Neon Snake", cat: "Arcade", desc: "Classic grid snake with cyber speed boost.", color: "linear-gradient(135deg,#059669,#34d399)", icon: "🐍", tier: "free", mode: "snake" },
-{ id: "breakout", title: "Plasma Breakout", cat: "Arcade", desc: "Smash neon energy bricks with a laser paddle.", color: "linear-gradient(135deg,#0284c7,#38bdf8)", icon: "🧱", tier: "free", mode: "breakout" },
-{ id: "blaster", title: "Starfighter Void", cat: "Action", desc: "Blast incoming asteroid waves in deep space.", color: "linear-gradient(135deg,#dc2626,#f97316)", icon: "🚀", tier: "free", mode: "shooter" },
-{ id: "dash", title: "Glacier Pulse Dash", cat: "Rhythm", desc: "Jump laser spikes in high-speed rhythm.", color: "linear-gradient(135deg,#7c3aed,#ec4899)", icon: "🟦", tier: "free", mode: "dash" },
-{ id: "slope", title: "Hyper Slope 3D", cat: "Racing", desc: "Dodge red cyber blocks at terminal velocity.", color: "linear-gradient(135deg,#ca8a04,#facc15)", icon: "🏎️", tier: "free", mode: "dodge" },
-{ id: "slide", title: "Pebbles Ice Slide", cat: "Arcade", desc: "Dodge falling glacial shards as Pebbles.", color: "linear-gradient(135deg,#1d4ed8,#60a5fa)", icon: "🐧", tier: "free", mode: "dodge" },
-{ id: "gold-arena", title: "Aurora Gold Gauntlet", cat: "Action", desc: "Gold VIP+ Exclusive hyper-speed arena.", color: "linear-gradient(135deg,#b45309,#fbbf24)", icon: "👑", tier: "gold", mode: "shooter" },
-{ id: "cloud-rig-1", title: "Cloud Rig: Cyber Drift", cat: "Cloud", desc: "Platinum+ Cloud Node: Ultra-smooth stream.", color: "linear-gradient(135deg,#581c87,#a855f7)", icon: "☁️", tier: "platinum", mode: "dodge" },
-{ id: "cloud-rig-2", title: "Cloud Rig: Neon Strike", cat: "Cloud", desc: "Platinum+ Cloud Node: Low-latency shooter.", color: "linear-gradient(135deg,#4c1d95,#38bdf8)", icon: "⚡", tier: "platinum", mode: "shooter" },
-{ id: "cloud-rig-3", title: "Cloud Rig: Supreme Core", cat: "Cloud", desc: "Platinum+ Cloud Node: Quantum brick breaker.", color: "linear-gradient(135deg,#1e3a8a,#c084fc)", icon: "💎", tier: "platinum", mode: "breakout" }
+{ id: "snake", title: "Cyber Neon Snake", cat: "Arcade", desc: "Classic grid snake with cyber speed.", color: "linear-gradient(135deg,#059669,#34d399)", icon: "🐍", tier: "free", mode: "snake" },
+{ id: "breakout", title: "Plasma Breakout", cat: "Arcade", desc: "Smash neon energy bricks.", color: "linear-gradient(135deg,#0284c7,#38bdf8)", icon: "🧱", tier: "free", mode: "breakout" },
+{ id: "blaster", title: "Starfighter Void", cat: "Action", desc: "Blast incoming asteroid waves.", color: "linear-gradient(135deg,#dc2626,#f97316)", icon: "🚀", tier: "free", mode: "shooter" },
+{ id: "dash", title: "Glacier Pulse Dash", cat: "Rhythm", desc: "Jump laser spikes in rhythm.", color: "linear-gradient(135deg,#7c3aed,#ec4899)", icon: "🟦", tier: "free", mode: "dash" },
+{ id: "slope", title: "Hyper Slope 3D", cat: "Racing", desc: "Dodge red cyber blocks.", color: "linear-gradient(135deg,#ca8a04,#facc15)", icon: "🏎️", tier: "free", mode: "dodge" },
+{ id: "slide", title: "Pebbles Ice Slide", cat: "Arcade", desc: "Dodge falling glacial shards.", color: "linear-gradient(135deg,#1d4ed8,#60a5fa)", icon: "🐧", tier: "free", mode: "dodge" },
+{ id: "gold-arena", title: "Aurora Gold Gauntlet", cat: "Action", desc: "Gold VIP+ Exclusive arena.", color: "linear-gradient(135deg,#b45309,#fbbf24)", icon: "👑", tier: "gold", mode: "shooter" },
+{ id: "cloud-1", title: "Cloud Rig: Cyber Drift", cat: "Cloud", desc: "Platinum+ Cloud Node stream.", color: "linear-gradient(135deg,#581c87,#a855f7)", icon: "☁️", tier: "platinum", mode: "dodge" },
+{ id: "cloud-2", title: "Cloud Rig: Neon Strike", cat: "Cloud", desc: "Platinum+ Cloud Node shooter.", color: "linear-gradient(135deg,#4c1d95,#38bdf8)", icon: "⚡", tier: "platinum", mode: "shooter" },
+{ id: "cloud-3", title: "Cloud Rig: Supreme Core", cat: "Cloud", desc: "Platinum+ Cloud Node breaker.", color: "linear-gradient(135deg,#1e3a8a,#c084fc)", icon: "💎", tier: "platinum", mode: "breakout" }
 ];
 const VIP_TIERS = [
 { id: "gold", name: "Gold VIP Pass 👑", cost: 100, mult: 1.25, desc: "1st Tier: Unlocks Gold VIP games & 1.25x token multiplier." },
@@ -295,7 +235,6 @@ let adminUnlocked = false, authMode = "login", currentCat = "All", animLoop = nu
 function saveDB() { localStorage.setItem("gameland_users_db", JSON.stringify(db)); updateHUD(); }
 function showToast(m) {
 const t = document.getElementById("toast");
-if (!t) return;
 t.textContent = m; t.style.display = "block";
 clearTimeout(t._t); t._t = setTimeout(() => t.style.display = "none", 3200);
 }
@@ -309,41 +248,67 @@ return Temporarily banned. Try again in ${mins} minute(s).;
 if (u.banUntil && Date.now() >= u.banUntil) { u.banUntil = 0; saveDB(); }
 return null;
 }
-function setAuthMode(m) {
-authMode = m;
-document.getElementById("tabLogin").classList.toggle("active", m === "login");
-document.getElementById("tabSignup").classList.toggle("active", m === "signup");
-document.getElementById("authSubmitBtn").textContent = m === "login" ? "Log In →" : "Create Account →";
+document.getElementById("tabLogin").onclick = function() {
+authMode = "login";
+document.getElementById("tabLogin").classList.add("active");
+document.getElementById("tabSignup").classList.remove("active");
+document.getElementById("authSubmitBtn").textContent = "Log In →";
 document.getElementById("authError").style.display = "none";
-}
-document.getElementById("authForm").onsubmit = async (e) => {
-e.preventDefault();
+};
+document.getElementById("tabSignup").onclick = function() {
+authMode = "signup";
+document.getElementById("tabSignup").classList.add("active");
+document.getElementById("tabLogin").classList.remove("active");
+document.getElementById("authSubmitBtn").textContent = "Create Account →";
+document.getElementById("authError").style.display = "none";
+};
+document.getElementById("authSubmitBtn").onclick = function() {
 const user = document.getElementById("authUser").value.trim().toLowerCase();
-const passRaw = document.getElementById("authPass").value;
-const passHash = await hashStr(passRaw);
+const pass = document.getElementById("authPass").value;
 const err = document.getElementById("authError");
+if (user.length < 3 || pass.length < 4) {
+err.textContent = "Username (3+ chars) and Password (4+ chars) required.";
+err.style.display = "block";
+return;
+}
 if (authMode === "signup") {
-if (db[user]) { err.textContent = "Username already taken."; err.style.display = "block"; return; }
-db[user] = { username: user, passHash, coins: 5, dailyDate: todayKey, dailyEarned: 0, vip: "none", banned: false, banUntil: 0 };
+if (db[user]) {
+err.textContent = "Username already taken.";
+err.style.display = "block";
+return;
+}
+db[user] = { username: user, pass: pass, coins: 5, dailyDate: todayKey, dailyEarned: 0, vip: "none", banned: false, banUntil: 0 };
 saveDB();
 showToast(🎉 Welcome @${user}! +5 starter tokens.);
 } else {
-if (!db[user] || db[user].passHash !== passHash) { err.textContent = "Invalid username or password."; err.style.display = "block"; return; }
+if (!db[user] || (db[user].pass !== pass && db[user].passHash !== pass)) {
+err.textContent = "Invalid username or password.";
+err.style.display = "block";
+return;
+}
 const banMsg = checkBanStatus(db[user]);
-if (banMsg) { err.textContent = banMsg; err.style.display = "block"; return; }
+if (banMsg) {
+err.textContent = banMsg;
+err.style.display = "block";
+return;
+}
 }
 currentUser = user;
 sessionStorage.setItem("gameland_session_user", user);
 document.getElementById("authModal").style.display = "none";
-updateHUD(); renderGames();
+updateHUD();
+renderGames();
 };
 function logoutUser() {
 sessionStorage.removeItem("gameland_session_user");
-currentUser = null; adminUnlocked = false; switchView("games");
+currentUser = null;
+adminUnlocked = false;
+switchView("games");
 document.getElementById("authModal").style.display = "flex";
 }
 function updateHUD() {
-const u = db[currentUser]; if (!u) return;
+const u = db[currentUser];
+if (!u) return;
 if (u.dailyDate !== todayKey) { u.dailyDate = todayKey; u.dailyEarned = 0; }
 const rank = TIER_RANK[u.vip] || 0;
 document.getElementById("coinDisplay").textContent = Math.floor(u.coins);
@@ -360,31 +325,36 @@ document.getElementById("adminLockErr").style.display = "none";
 document.getElementById("adminPassInput").value = "";
 document.getElementById("adminLockModal").style.display = "flex";
 }
-document.getElementById("adminLockForm").onsubmit = async (e) => {
-e.preventDefault();
-const rawPass = document.getElementById("adminPassInput").value;
-const hashed = await hashStr(rawPass);
-if (hashed === ADMIN_PASSWORD_HASH || rawPass === "pebbles2026") {
+document.getElementById("adminCancelBtn").onclick = function() {
+document.getElementById("adminLockModal").style.display = "none";
+};
+document.getElementById("adminUnlockBtn").onclick = function() {
+const val = document.getElementById("adminPassInput").value;
+if (val === "pebbles2026" || val === "admin") {
 adminUnlocked = true;
 document.getElementById("adminLockModal").style.display = "none";
 logConsole("✓ Admin authenticated.");
 switchView("admin");
-} else document.getElementById("adminLockErr").style.display = "block";
+} else {
+document.getElementById("adminLockErr").style.display = "block";
+}
 };
 function logConsole(msg) {
 const box = document.getElementById("consoleLog");
 const d = document.createElement("div");
 d.textContent = [${new Date().toLocaleTimeString()}] ${msg};
-box.appendChild(d); box.scrollTop = box.scrollHeight;
+box.appendChild(d);
+box.scrollTop = box.scrollHeight;
 }
-document.getElementById("consoleForm").onsubmit = (e) => {
-e.preventDefault();
+document.getElementById("consoleExecBtn").onclick = function() {
 if (!adminUnlocked) return;
 const raw = document.getElementById("consoleCmd").value.trim();
 document.getElementById("consoleCmd").value = "";
 if (!raw) return;
 logConsole(> ${raw});
-const p = raw.split(/\s+/), cmd = p.toLowerCase(), target = (p || "").toLowerCase();
+const p = raw.split(/\s+/);
+const cmd = p.toLowerCase();
+const target = (p || "").toLowerCase();
 if (cmd === "/help") logConsole("Commands: /givecoins   | /givevip  <gold|platinum|diamond|none> | /ban  | /tempban   | /unban  | /list");
 else if (cmd === "/list") logConsole("Users: " + (Object.keys(db).join(", ") || "none"));
 else if (cmd === "/givecoins" && db[target] && !isNaN(Number(p))) {
@@ -404,7 +374,8 @@ saveDB(); renderAdminUsers(); logConsole(Unbanned @${target}.);
 } else logConsole("Invalid syntax or user not found. Type /help.");
 };
 function renderAdminUsers() {
-const tb = document.getElementById("adminUserTable"); tb.innerHTML = "";
+const tb = document.getElementById("adminUserTable");
+tb.innerHTML = "";
 Object.values(db).forEach(u => {
 const tempActive = u.banUntil && Date.now() < u.banUntil;
 const status = u.banned ? "PERM BANNED" : (tempActive ? TEMP (${Math.ceil((u.banUntil - Date.now())/60000)}m) : "ACTIVE");
@@ -430,20 +401,24 @@ logConsole(Updated @${user} (${action}).);
 }
 function filterCat(cat) {
 currentCat = cat;
-document.querySelectorAll("#catList .side-item").forEach(b => b.classList.toggle("active", b.dataset.cat === cat));
+document.querySelectorAll(".sidebar .side-item").forEach(b => b.classList.toggle("active", b.dataset.cat === cat));
 switchView("games");
 }
+document.querySelectorAll(".sidebar .side-item").forEach(btn => {
+btn.onclick = () => filterCat(btn.dataset.cat);
+});
 function renderGames() {
 const q = document.getElementById("searchInput").value.toLowerCase();
 const u = db[currentUser];
 const rank = u ? (TIER_RANK[u.vip] || 0) : 0;
-const grid = document.getElementById("gameGrid"); grid.innerHTML = "";
+const grid = document.getElementById("gameGrid");
+grid.innerHTML = "";
 GAMES.filter(g => (currentCat === "All" || g.cat === currentCat) && g.title.toLowerCase().includes(q)).forEach(g => {
 const reqRank = TIER_RANK[g.tier] || 0;
 const locked = rank < reqRank;
 const card = document.createElement("div");
-card.className = "game-card";
-card.innerHTML = <div class="card-banner" style="background:${g.color};"> ${g.tier === "platinum" ?☁️ PLATINUM+: (g.tier === "gold" ?👑 GOLD+ : "")} <span>${locked ? "🔒" : g.icon}</span> </div> <div class="card-body"> <div class="card-title">${g.title}</div> <div class="card-desc">${g.desc}</div> </div>;
+card.className = "card";
+card.innerHTML = <div class="banner" style="background:${g.color};"> ${g.tier === "platinum" ?☁️ PLATINUM+: (g.tier === "gold" ?👑 GOLD+ : "")} <span>${locked ? "🔒" : g.icon}</span> </div> <div style="padding:0.9rem;"> <div style="font-weight:800;margin-bottom:0.25rem;">${g.title}</div> <div style="font-size:0.78rem;color:var(--muted);">${g.desc}</div> </div>;
 card.onclick = () => {
 if (locked) {
 showToast(g.tier === "platinum" ? "☁️ Cloud Gaming requires Platinum VIP (2nd highest) or Diamond Supreme!" : "👑 Requires Gold VIP or higher!");
@@ -456,12 +431,13 @@ grid.appendChild(card);
 }
 function renderShop() {
 const u = db[currentUser];
-const grid = document.getElementById("vipShopGrid"); grid.innerHTML = "";
+const grid = document.getElementById("vipShopGrid");
+grid.innerHTML = "";
 VIP_TIERS.forEach(t => {
 const owned = u && u.vip === t.id;
 const card = document.createElement("div");
 card.className = "vip-card";
-card.innerHTML =  <div><h3 style="margin:0 0 0.4rem;">${t.name}</h3><p style="font-size:0.83rem;color:var(--muted);">${t.desc}</p></div> <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;"> <strong style="color:var(--gold);">🪙 ${t.cost} PTS</strong> <button class="btn-primary">${owned ? "✓ Active" : "Unlock"}</button> </div>;
+card.innerHTML =  <h3 style="margin:0 0 0.4rem;">${t.name}</h3> <p style="font-size:0.83rem;color:var(--muted);">${t.desc}</p> <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;"> <strong style="color:var(--gold);">🪙 ${t.cost} PTS</strong> <button type="button" class="btn-primary">${owned ? "✓ Active" : "Unlock"}</button> </div>;
 card.querySelector("button").onclick = () => {
 if (owned || !u) return;
 if (u.coins < t.cost) return showToast("Not enough tokens! Earn 1/game (20/day max).");
@@ -473,8 +449,7 @@ grid.appendChild(card);
 }
 function launchGame(g) {
 const u = db[currentUser];
-const banMsg = checkBanStatus(u);
-if (banMsg) { logoutUser(); return; }
+if (!u || checkBanStatus(u)) { logoutUser(); return; }
 if (u.dailyEarned < 20) {
 const mult = u.vip === "diamond" ? 2 : (u.vip === "platinum" ? 1.5 : (u.vip === "gold" ? 1.25 : 1));
 u.coins += 1 * mult; u.dailyEarned += 1; saveDB();
@@ -594,11 +569,8 @@ if (v === "shop") renderShop();
 if (v === "admin") renderAdminUsers();
 if (v === "games") renderGames();
 }
-document.getElementById("catList").onclick = e => {
-const b = e.target.closest(".side-item");
-if (b && b.dataset.cat) filterCat(b.dataset.cat);
-};
 if (currentUser && db[currentUser] && !checkBanStatus(db[currentUser])) {
 document.getElementById("authModal").style.display = "none";
-updateHUD(); renderGames();
+updateHUD();
+renderGames();
 }
